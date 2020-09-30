@@ -1,0 +1,12 @@
+## [Initial commit] 
+### Added 
+ - LwM2M_Adapter
+ - LwM2M_RegistryEventHandler
+ - DeviceEventHandler
+ - conan packaging
+ - conan package integration test
+ - documentation
+ - LICENSE and NOTICE files
+ - Readme
+ - Contributing guide 
+ - Authors

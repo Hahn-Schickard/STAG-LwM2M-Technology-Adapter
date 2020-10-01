@@ -6,6 +6,7 @@
 using namespace std;
 using namespace LwM2M;
 using namespace Information_Model;
+using namespace HaSLL;
 
 using Read_Callback = function<DataVariant()>;
 using Write_Callback = function<void(DataVariant)>;
@@ -79,6 +80,29 @@ private:
   }
 };
 
+template <typename T>
+void bindCallbacks(Read_Callback &read_cb, Write_Callback &write_cb,
+                   shared_ptr<Resource<T>> resource) {
+  switch (resource->getDescriptor()->operations_) {
+  case OperationsType::READ: {
+    read_cb = bind(static_cast<T (Resource<T>::*)(void)>(&Resource<T>::read),
+                   resource);
+    break;
+  }
+  case OperationsType::WRITE: {
+    break;
+  }
+  case OperationsType::READ_AND_WRITE: {
+    read_cb = bind(static_cast<T (Resource<T>::*)(void)>(&Resource<T>::read),
+                   resource);
+    break;
+  }
+  case OperationsType::EXECUTE:
+  case OperationsType::NO_OPERATION:
+  default: { break; }
+  }
+}
+
 void DeviceEventHandler::buildAndRegisterDevice(DevicePtr device) {
   if (bnr_) {
     bnr_->buildDeviceBase(device->getDeviceId(), device->getName(), string());
@@ -92,71 +116,46 @@ void DeviceEventHandler::buildAndRegisterDevice(DevicePtr device) {
         for (auto resource_variant_pair :
              instance_pair.second->getResources()) {
           unique_ptr<DeviceNode> node;
-          Read_Callback read_cb;
-          Write_Callback write_cb;
+          Read_Callback read_cb = []() -> DataVariant { return DataVariant(); };
+          Write_Callback write_cb = [](DataVariant) {};
           match(resource_variant_pair.second,
                 [&](shared_ptr<Resource<bool>> resource) {
-                  if (resource->getDescriptor()->data_type_ !=
-                      LwM2M::DataType::BOOLEAN) {
-                    throw runtime_error("Set data type does not match the "
-                                        "descriptors data type!");
-                  }
+                  bindCallbacks<bool>(read_cb, write_cb, resource);
                   node = make_unique<DeviceNode>(resource->getDescriptor(),
                                                  read_cb, write_cb);
                 },
                 [&](shared_ptr<Resource<int64_t>> resource) {
-                  if (resource->getDescriptor()->data_type_ !=
-                      LwM2M::DataType::INTEGER) {
-                    throw runtime_error("Set data type does not match the "
-                                        "descriptors data type!");
-                  }
+                  bindCallbacks<int64_t>(read_cb, write_cb, resource);
                   node = make_unique<DeviceNode>(resource->getDescriptor(),
                                                  read_cb, write_cb);
                 },
                 [&](shared_ptr<Resource<double>> resource) {
-                  if (resource->getDescriptor()->data_type_ !=
-                      LwM2M::DataType::FLOAT) {
-                    throw runtime_error("Set data type does not match the "
-                                        "descriptors data type!");
-                  }
+                  bindCallbacks<double>(read_cb, write_cb, resource);
                   node = make_unique<DeviceNode>(resource->getDescriptor(),
                                                  read_cb, write_cb);
                 },
                 [&](shared_ptr<Resource<string>> resource) {
-                  if (resource->getDescriptor()->data_type_ !=
-                      LwM2M::DataType::STRING) {
-                    throw runtime_error("Set data type does not match the "
-                                        "descriptors data type!");
-                  }
+                  bindCallbacks<string>(read_cb, write_cb, resource);
                   node = make_unique<DeviceNode>(resource->getDescriptor(),
                                                  read_cb, write_cb);
                 },
                 [&](shared_ptr<Resource<uint64_t>> resource) {
-                  if (resource->getDescriptor()->data_type_ !=
-                      LwM2M::DataType::TIME) {
-                    throw runtime_error("Set data type does not match the "
-                                        "descriptors data type!");
-                  }
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
+                  logger_->log(SeverityLevel::ERROR,
+                               "uint64_t building is not supported. "
+                               "Skipping resource []",
+                               resource->getDescriptor()->name_);
                 },
                 [&](shared_ptr<Resource<ObjectLink>> resource) {
-                  if (resource->getDescriptor()->data_type_ !=
-                      LwM2M::DataType::OBJECT_LINK) {
-                    throw runtime_error("Set data type does not match the "
-                                        "descriptors data type!");
-                  }
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
+                  logger_->log(SeverityLevel::ERROR,
+                               "Object link building is not supported. "
+                               "Skipping resource []",
+                               resource->getDescriptor()->name_);
                 },
                 [&](shared_ptr<Resource<vector<uint8_t>>> resource) {
-                  if (resource->getDescriptor()->data_type_ !=
-                      LwM2M::DataType::OPAQUE) {
-                    throw runtime_error("Set data type does not match the "
-                                        "descriptors data type!");
-                  }
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
+                  logger_->log(SeverityLevel::ERROR,
+                               "Array building is not supported. "
+                               "Skipping resource []",
+                               resource->getDescriptor()->name_);
                 });
           if (node) {
             switch (node->element_type) {
@@ -176,7 +175,8 @@ void DeviceEventHandler::buildAndRegisterDevice(DevicePtr device) {
             case Information_Model::ElementType::UNDEFINED: {
             }
             default: {
-              throw runtime_error("Received an unhandeled element type!");
+              logger_->log(SeverityLevel::ERROR,
+                           "Received an unhandeled element type!");
             }
             }
           }
@@ -204,8 +204,9 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
 }
 
 DeviceEventHandler::DeviceEventHandler(
-    shared_ptr<Event_Model::EventSource<RegistryEvent>> event_source)
-    : EventListener(event_source) {}
+    shared_ptr<Event_Model::EventSource<RegistryEvent>> event_source,
+    shared_ptr<Logger> logger)
+    : EventListener(event_source), logger_(logger) {}
 
 void DeviceEventHandler::setBuildingAndRegistrationInterface(
     shared_ptr<Information_Access_Manager::BuildingAndRegistrationInterface>

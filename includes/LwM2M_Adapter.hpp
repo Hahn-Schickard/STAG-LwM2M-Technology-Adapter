@@ -10,15 +10,14 @@ class LwM2M_TechnologyAdapter : public TechnologyAdapter {
   std::unique_ptr<LwM2M::Server> server_;
   std::unique_ptr<LwM2M_RegistryEventHandler> event_handler_;
 
-  void run() final;
   void interfaceSet() final;
 
 public:
   LwM2M_TechnologyAdapter();
   LwM2M_TechnologyAdapter(const std::string filepath);
 
-  void start();
-  void stop();
+  void start() override;
+  void stop() override;
 };
 } // namespace Technology_Adapter
 

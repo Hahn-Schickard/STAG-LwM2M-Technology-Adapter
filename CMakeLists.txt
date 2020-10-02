@@ -23,6 +23,7 @@ execute_conan_install()
 #@+ ======================== User PACKAGES configuration ===========================
 list(APPEND DEPENDENCIES_LIST 
         Technology_Adapter_Interface
+        Variant_Visitor
         Event_Model
         LwM2M_Server
 )

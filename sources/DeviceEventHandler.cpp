@@ -1,30 +1,32 @@
 #include "DeviceEventHandler.hpp"
 #include "DataVariant.hpp"
+#include "Variant_Visitor.hpp"
 
 #include <functional>
 
 using namespace std;
 using namespace LwM2M;
 using namespace Information_Model;
+using namespace Information_Access_Manager;
 using namespace HaSLL;
-
-using Read_Callback = function<DataVariant()>;
-using Write_Callback = function<void(DataVariant)>;
 
 struct DeviceNode {
   string name;
   string desc;
   ElementType element_type;
   Information_Model::DataType data_type;
-  Read_Callback read_cb;
-  Write_Callback write_cb;
+  optional<ReadFunctor> read_cb;
+  optional<WriteFunctor> write_cb;
 
-  DeviceNode(ResourceDescriptorPtr descriptor, Read_Callback read_cb,
-             Write_Callback write_cb) {
+  DeviceNode(ResourceDescriptorPtr descriptor,
+             optional<ReadFunctor> read_callback,
+             optional<WriteFunctor> write_callback) {
     name = descriptor->name_;
     desc = descriptor->description_;
     element_type = toElementType(descriptor->operations_);
     data_type = toDataType(descriptor->data_type_);
+    read_cb = read_callback;
+    write_cb = write_callback;
   }
 
 private:
@@ -63,11 +65,10 @@ private:
       return Information_Model::DataType::STRING;
     }
     case LwM2M::DataType::OPAQUE: {
-      // TODO:  implement array data type to information model
-      return Information_Model::DataType::UNKNOWN;
+      return Information_Model::DataType::OPAQUE;
     }
     case LwM2M::DataType::TIME: {
-      return Information_Model::DataType::LONG;
+      return Information_Model::DataType::UNSIGNED_INTEGER;
     }
     case LwM2M::DataType::OBJECT_LINK: {
       // TODO: descide how to handle linking to other nodes
@@ -81,7 +82,8 @@ private:
 };
 
 template <typename T>
-void bindCallbacks(Read_Callback &read_cb, Write_Callback &write_cb,
+void bindCallbacks(optional<ReadFunctor> &read_cb,
+                   optional<WriteFunctor> &write_cb,
                    shared_ptr<Resource<T>> resource) {
   switch (resource->getDescriptor()->operations_) {
   case OperationsType::READ: {
@@ -116,8 +118,8 @@ void DeviceEventHandler::buildAndRegisterDevice(DevicePtr device) {
         for (auto resource_variant_pair :
              instance_pair.second->getResources()) {
           unique_ptr<DeviceNode> node;
-          Read_Callback read_cb = []() -> DataVariant { return DataVariant(); };
-          Write_Callback write_cb = [](DataVariant) {};
+          optional<ReadFunctor> read_cb;
+          optional<WriteFunctor> write_cb;
           match(resource_variant_pair.second,
                 [&](shared_ptr<Resource<bool>> resource) {
                   bindCallbacks<bool>(read_cb, write_cb, resource);
@@ -140,10 +142,9 @@ void DeviceEventHandler::buildAndRegisterDevice(DevicePtr device) {
                                                  read_cb, write_cb);
                 },
                 [&](shared_ptr<Resource<uint64_t>> resource) {
-                  logger_->log(SeverityLevel::ERROR,
-                               "uint64_t building is not supported. "
-                               "Skipping resource []",
-                               resource->getDescriptor()->name_);
+                  bindCallbacks<uint64_t>(read_cb, write_cb, resource);
+                  node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                                 read_cb, write_cb);
                 },
                 [&](shared_ptr<Resource<ObjectLink>> resource) {
                   logger_->log(SeverityLevel::ERROR,
@@ -152,33 +153,14 @@ void DeviceEventHandler::buildAndRegisterDevice(DevicePtr device) {
                                resource->getDescriptor()->name_);
                 },
                 [&](shared_ptr<Resource<vector<uint8_t>>> resource) {
-                  logger_->log(SeverityLevel::ERROR,
-                               "Array building is not supported. "
-                               "Skipping resource []",
-                               resource->getDescriptor()->name_);
+                  bindCallbacks<vector<uint8_t>>(read_cb, write_cb, resource);
+                  node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                                 read_cb, write_cb);
                 });
           if (node) {
-            switch (node->element_type) {
-            case Information_Model::ElementType::READABLE: {
-              bnr_->addReadableMetric(instance_id, node->name, node->desc,
-                                      node->data_type, node->read_cb);
-              break;
-            }
-            case Information_Model::ElementType::WRITABLE: {
-              bnr_->addWritableMetric(instance_id, node->name, node->desc,
-                                      node->data_type, node->read_cb,
-                                      node->write_cb);
-              break;
-            }
-            case Information_Model::ElementType::FUNCTION: {
-            }
-            case Information_Model::ElementType::UNDEFINED: {
-            }
-            default: {
-              logger_->log(SeverityLevel::ERROR,
-                           "Received an unhandeled element type!");
-            }
-            }
+            bnr_->addDeviceElement(instance_id, node->name, node->desc,
+                                   node->element_type, node->data_type,
+                                   node->read_cb, node->write_cb);
           }
         }
       }

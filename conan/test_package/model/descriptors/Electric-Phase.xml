@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LWM2M  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://openmobilealliance.org/tech/profiles/LWM2M.xsd">
+    <Object ObjectType="MODefinition">
+        <Name>Electric Phase</Name>
+        <Description1>This custom object should be used for electric phase meassuring. It works the same as a typical Electric Power Object.
+        </Description1>
+        <ObjectID>26241</ObjectID>
+        <ObjectURN>urn:oma:lwm2m:ext:26241</ObjectURN>
+        <MultipleInstances>Multiple</MultipleInstances>
+        <Mandatory>Optional</Mandatory>
+	    <Dynamic>Static</Dynamic>
+        <Resources>
+            <Item ID="0">
+                <Name>Phase ID</Name>
+                <Operations>R</Operations>
+                <MultipleInstances>Single</MultipleInstances>
+		        <Dynamic>Static</Dynamic>
+		        <Historization>False</Historization>
+                <Mandatory>Mandatory</Mandatory>
+                <Type>String</Type>
+                <RangeEnumeration></RangeEnumeration>
+                <Units></Units>
+                <Description>Name or ID of the meassured phase.</Description>
+            </Item>
+            <Item ID="1">
+                <Name>Current</Name>
+                <Operations>R</Operations>
+                <MultipleInstances>Single</MultipleInstances>
+		        <Dynamic>Dynamic</Dynamic>
+		        <Historization>True</Historization>
+                <Mandatory>Mandatory</Mandatory>
+                <Type>Float</Type>
+                <RangeEnumeration></RangeEnumeration>
+                <Units>A</Units>
+                <Description>Current value of measured phase.</Description>
+            </Item>
+            <Item ID="2">
+                <Name>Voltage</Name>
+                <Operations>R</Operations>
+                <MultipleInstances>Single</MultipleInstances>
+		        <Dynamic>Dynamic</Dynamic>
+		        <Historization>True</Historization>
+                <Mandatory>Mandatory</Mandatory>
+                <Type>Float</Type>
+                <RangeEnumeration></RangeEnumeration>
+                <Units>V</Units>
+                <Description>Voltage value of measured phase.</Description>
+            </Item>
+            <Item ID="3">
+                <Name>Real Power</Name>
+                <Operations>R</Operations>
+                <MultipleInstances>Single</MultipleInstances>
+		        <Dynamic>Dynamic</Dynamic>
+		        <Historization>True</Historization>
+                <Mandatory>Mandatory</Mandatory>
+                <Type>Float</Type>
+                <RangeEnumeration></RangeEnumeration>
+                <Units>W</Units>
+                <Description>Real Power value of measured phase.</Description>
+            </Item>
+            <Item ID="4">
+                <Name>Reactive Power</Name>
+                <Operations>R</Operations>
+                <MultipleInstances>Single</MultipleInstances>
+		        <Dynamic>Dynamic</Dynamic>
+		        <Historization>True</Historization>
+                <Mandatory>Optional</Mandatory>
+                <Type>Float</Type>
+                <RangeEnumeration></RangeEnumeration>
+                <Units>var</Units>
+                <Description>Reactive Power value of measured phase.</Description>
+            </Item>
+            <Item ID="5">
+                <Name>Appearant Power</Name>
+                <Operations>R</Operations>
+                <MultipleInstances>Single</MultipleInstances>
+		        <Dynamic>Dynamic</Dynamic>
+		        <Historization>True</Historization>
+                <Mandatory>Optional</Mandatory>
+                <Type>Float</Type>
+                <RangeEnumeration></RangeEnumeration>
+                <Units>VA</Units>
+                <Description>Appearant Power value of measured phase.</Description>
+            </Item>
+            <Item ID="6">
+                <Name>Power Cosine</Name>
+                <Operations>R</Operations>
+                <MultipleInstances>Single</MultipleInstances>
+		        <Dynamic>Dynamic</Dynamic>
+		        <Historization>True</Historization>
+                <Mandatory>Optional</Mandatory>
+                <Type>Float</Type>
+                <RangeEnumeration>[-1:1]</RangeEnumeration>
+                <Units></Units>
+                <Description>Cosine Power value between Reactive and Appearant Power values.</Description>
+            </Item>
+        </Resources>
+        <Description2></Description2>
+    </Object>
+</LWM2M>

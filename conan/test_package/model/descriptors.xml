@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<IPSOModel xmlns="http://ipso/IPSOModel.xsd">
+    <IPSOPath File="descriptors/Barometer.xml" />
+    <IPSOPath File="descriptors/Current.xml" />
+    <IPSOPath File="descriptors/EIS.xml" />
+    <IPSOPath File="descriptors/EIS-Values.xml" />
+    <IPSOPath File="descriptors/EMeter-Values.xml" />
+    <IPSOPath File="descriptors/Humidity.xml" />
+    <IPSOPath File="descriptors/Illuminance.xml" />
+    <IPSOPath File="descriptors/ipsoWakaamaTestObj.xml" />
+    <IPSOPath File="descriptors/Power.xml" />
+    <IPSOPath File="descriptors/Temperature.xml" />
+    <IPSOPath File="descriptors/Voltage.xml" />
+    <IPSOPath File="descriptors/deviceObject.xml" />
+    <IPSOPath File="descriptors/testObj.xml" />
+    <IPSOPath File="descriptors/Electric-Phase.xml" />
+    <IPSOPath File="descriptors/Location.xml" />
+    <IPSOPath File="descriptors/Security.xml" />
+    <IPSOPath File="descriptors/Server.xml" />
+</IPSOModel>
+

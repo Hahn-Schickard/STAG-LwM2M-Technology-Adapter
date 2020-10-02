@@ -23,11 +23,14 @@ class PackageConan(ConanFile):
     default_user = "Hahn-Schickard"
     exports_sources = [
         "../cmake*",
+        "../model*",
         "../includes*",
         "../sources*",
         "../unit_tests*",
         "../CMakeLists.txt",
         "../conanfile.txt",
+        "../loggerConfig.json",
+        "../serverConfig.json",
         "../README.md",
         "../LICENSE",
         "../NOTICE",

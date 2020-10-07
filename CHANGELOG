@@ -1,3 +1,16 @@
+## [0.1.0] - 2020.10.07
+### Added
+ - logger config file
+ - lwm2m server config file
+ - lwm2m model files 
+ - Write callback wrapper
+
+### Changed
+ - LwM2M Server to 0.1.2
+ - Technology Adapter Interface to 0.1.4
+ - example.cpp to only load the minimum amount of symbols
+ - LwM2M_TechnolgoyAdapter to confirm with 0.1.4 Technology Adapter Interface
+
 ## [Initial commit] 
 ### Added 
  - LwM2M_Adapter

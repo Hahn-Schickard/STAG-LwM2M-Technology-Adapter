@@ -7,7 +7,7 @@
 using namespace std;
 using namespace LwM2M;
 using namespace Information_Model;
-using namespace Information_Access_Manager;
+using namespace Technology_Adapter;
 using namespace HaSLL;
 
 struct DeviceNode {
@@ -113,15 +113,17 @@ void bindCallbacks(optional<ReadFunctor> &read_cb,
   }
 }
 
-void DeviceEventHandler::buildAndRegisterDevice(DevicePtr device) {
-  if (bnr_) {
-    bnr_->buildDeviceBase(device->getDeviceId(), device->getName(), string());
+shared_ptr<Information_Model::Device>
+DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
+  if (builder_) {
+    builder_->buildDeviceBase(device->getDeviceId(), device->getName(),
+                              string());
     for (auto object_pair : device->getObjects()) {
-      auto object_id = bnr_->addDeviceElementGroup(
+      auto object_id = builder_->addDeviceElementGroup(
           to_string(object_pair.first),
           object_pair.second->getDescriptor()->description_);
       for (auto instance_pair : object_pair.second->getInstances()) {
-        auto instance_id = bnr_->addDeviceElementGroup(
+        auto instance_id = builder_->addDeviceElementGroup(
             object_id, to_string(instance_pair.first), string());
         for (auto resource_variant_pair :
              instance_pair.second->getResources()) {
@@ -166,27 +168,32 @@ void DeviceEventHandler::buildAndRegisterDevice(DevicePtr device) {
                                                  read_cb, write_cb);
                 });
           if (node) {
-            bnr_->addDeviceElement(instance_id, node->name, node->desc,
-                                   node->element_type, node->data_type,
-                                   node->read_cb, node->write_cb);
+            builder_->addDeviceElement(instance_id, node->name, node->desc,
+                                       node->element_type, node->data_type,
+                                       node->read_cb, node->write_cb);
           }
         }
       }
     }
-    bnr_->registerDevice(bnr_->getResult());
+    return builder_->getResult();
   }
+  return shared_ptr<Information_Model::Device>();
 }
 
 void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
   switch (event->type) {
   case RegistryEventType::REGISTERED:
   case RegistryEventType::UPDATED: {
-    buildAndRegisterDevice(event->device);
+    if (builder_ && registry_) {
+      auto device = buildDevice(event->device);
+      if (device)
+        registry_->registerDevice(device);
+    }
     break;
   }
   case RegistryEventType::DEREGISTERED: {
-    if (bnr_)
-      bnr_->deregisterDevice(event->identifier);
+    if (registry_)
+      registry_->deregisterDevice(event->identifier);
     break;
   }
   default: { break; }
@@ -198,8 +205,8 @@ DeviceEventHandler::DeviceEventHandler(
     shared_ptr<Logger> logger)
     : EventListener(event_source), logger_(logger) {}
 
-void DeviceEventHandler::setBuildingAndRegistrationInterface(
-    shared_ptr<Information_Access_Manager::BuildingAndRegistrationInterface>
-        building_and_registration_interface) {
-  bnr_ = building_and_registration_interface;
+void DeviceEventHandler::setBuilderAndRegistratyInterfaces(
+    DeviceBuilderPtr builder, ModelRegistryPtr registry) {
+  builder_ = builder;
+  registry_ = registry;
 }

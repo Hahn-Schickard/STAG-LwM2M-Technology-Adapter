@@ -1,30 +1,31 @@
-#include "BuildingAndRegistrationInterface_MOCK.hpp"
+#include "DeviceBuilderInterface_MOCK.hpp"
 #include "LoggerRepository.hpp"
 #include "LwM2M_Adapter.hpp"
+#include "ModelRegistryInterface_MOCK.hpp"
 
 #include <memory>
 #include <thread>
 
 using namespace HaSLL;
-using namespace Technology_Adapter;
+using namespace Technology_Adapter::testing;
 using namespace std;
 
 int main(int argc, const char *argv[]) {
   try {
     LoggerRepository::initialise("loggerConfig.json");
     LoggerRepository::getInstance().configure(SeverityLevel::TRACE);
-    auto adapter = make_shared<LwM2M_TechnologyAdapter>("serverConfig.json");
-    if (adapter->setBuildingAndRegistrationInterface(
-            make_shared<Information_Access_Manager::testing::MockBnR>())) {
-      adapter->start();
+    auto adapter = make_shared<Technology_Adapter::LwM2M_TechnologyAdapter>(
+        "serverConfig.json");
+    adapter->setInterfaces(make_shared<DeviceBuilderMock>(),
+                           make_shared<ModelRegistryMock>());
+    adapter->start();
 
-      if (argc > 1) {
-        int sleep_period = atoi(argv[1]);
-        this_thread::sleep_for(chrono::seconds(sleep_period));
-        adapter->stop();
-      } else {
-        for (;;) {
-        }
+    if (argc > 1) {
+      int sleep_period = atoi(argv[1]);
+      this_thread::sleep_for(chrono::seconds(sleep_period));
+      adapter->stop();
+    } else {
+      for (;;) {
       }
     }
 

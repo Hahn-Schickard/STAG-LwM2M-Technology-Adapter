@@ -9,11 +9,12 @@
 class DeviceEventHandler
     : public Event_Model::EventListener<LwM2M::RegistryEvent>,
       public LwM2M_RegistryEventHandler {
-  std::shared_ptr<Information_Access_Manager::BuildingAndRegistrationInterface>
-      bnr_;
+  DeviceBuilderPtr builder_;
+  ModelRegistryPtr registry_;
   std::shared_ptr<HaSLL::Logger> logger_;
 
-  void buildAndRegisterDevice(LwM2M::DevicePtr device);
+  std::shared_ptr<Information_Model::Device>
+  buildDevice(LwM2M::DevicePtr device);
   void handleEvent(std::shared_ptr<LwM2M::RegistryEvent> event) override;
 
 public:
@@ -22,8 +23,6 @@ public:
           event_source,
       std::shared_ptr<HaSLL::Logger> logger);
 
-  void setBuildingAndRegistrationInterface(
-      std::shared_ptr<
-          Information_Access_Manager::BuildingAndRegistrationInterface>
-          building_and_registration_interface) override;
+  void setBuilderAndRegistratyInterfaces(DeviceBuilderPtr builder,
+                                         ModelRegistryPtr registry) override;
 };

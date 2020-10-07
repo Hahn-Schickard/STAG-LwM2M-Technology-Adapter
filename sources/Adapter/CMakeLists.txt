@@ -20,7 +20,6 @@ target_sources(${THIS} PRIVATE
 target_link_libraries(${THIS} PUBLIC 
                               Technology_Adapter_Interface::Technology_Adapter_Interface
                               Variant_Visitor::Variant_Visitor
-                              Event_Model::Event_Model
                               LwM2M_Server::LwM2M_Server
 )
 

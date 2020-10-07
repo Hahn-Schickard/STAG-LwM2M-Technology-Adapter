@@ -11,6 +11,8 @@ public:
   using ModelRegistryPtr =
       std::shared_ptr<Technology_Adapter::ModelRegistryInterface>;
 
+  virtual ~LwM2M_RegistryEventHandler() = default;
+
   virtual void setBuilderAndRegistratyInterfaces(DeviceBuilderPtr builder,
                                                  ModelRegistryPtr registry) = 0;
 };

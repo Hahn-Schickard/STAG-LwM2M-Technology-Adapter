@@ -82,6 +82,12 @@ private:
 };
 
 template <typename T>
+void writeWrapper(shared_ptr<Resource<T>> resource,
+                  Information_Model::DataVariant variant) {
+  resource->write(get<T>(variant));
+}
+
+template <typename T>
 void bindCallbacks(optional<ReadFunctor> &read_cb,
                    optional<WriteFunctor> &write_cb,
                    shared_ptr<Resource<T>> resource) {
@@ -92,11 +98,13 @@ void bindCallbacks(optional<ReadFunctor> &read_cb,
     break;
   }
   case OperationsType::WRITE: {
+    write_cb = bind(&writeWrapper<T>, resource, placeholders::_1);
     break;
   }
   case OperationsType::READ_AND_WRITE: {
     read_cb = bind(static_cast<T (Resource<T>::*)(void)>(&Resource<T>::read),
                    resource);
+    write_cb = bind(&writeWrapper<T>, resource, placeholders::_1);
     break;
   }
   case OperationsType::EXECUTE:

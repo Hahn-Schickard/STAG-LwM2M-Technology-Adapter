@@ -87,6 +87,26 @@ void writeWrapper(shared_ptr<Resource<T>> resource,
   resource->write(get<T>(variant));
 }
 
+string toString(OperationsType type) {
+  switch (type) {
+  case OperationsType::READ: {
+    return "Read";
+  }
+  case OperationsType::WRITE: {
+    return "Write";
+  }
+  case OperationsType::READ_AND_WRITE: {
+    return "Read and Write";
+  }
+  case OperationsType::EXECUTE: {
+    return "Execute";
+  }
+  case OperationsType::NO_OPERATION: {
+  }
+  default: { return "Null"; }
+  }
+}
+
 template <typename T>
 void bindCallbacks(optional<ReadFunctor> &read_cb,
                    optional<WriteFunctor> &write_cb,
@@ -113,16 +133,26 @@ void bindCallbacks(optional<ReadFunctor> &read_cb,
   }
 }
 
-shared_ptr<Information_Model::Device>
+Information_Model::DevicePtr
 DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
   if (builder_) {
+    logger_->log(SeverityLevel::TRACE, "Building device base for {}:{}",
+                 device->getDeviceId(), device->getName());
     builder_->buildDeviceBase(device->getDeviceId(), device->getName(),
                               string());
     for (auto object_pair : device->getObjects()) {
+      logger_->log(SeverityLevel::TRACE,
+                   "Creating a Device Element group for {}:{} Object",
+                   object_pair.second->getDescriptor()->id_,
+                   object_pair.second->getDescriptor()->name_);
       auto object_id = builder_->addDeviceElementGroup(
           to_string(object_pair.first),
           object_pair.second->getDescriptor()->description_);
       for (auto instance_pair : object_pair.second->getInstances()) {
+        logger_->log(
+            SeverityLevel::TRACE,
+            "Creating a Device Element Group for {} Object instance {}",
+            object_id, to_string(instance_pair.first));
         auto instance_id = builder_->addDeviceElementGroup(
             object_id, to_string(instance_pair.first), string());
         for (auto resource_variant_pair :
@@ -130,44 +160,68 @@ DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
           unique_ptr<DeviceNode> node;
           optional<ReadFunctor> read_cb;
           optional<WriteFunctor> write_cb;
-          match(resource_variant_pair.second,
-                [&](shared_ptr<Resource<bool>> resource) {
-                  bindCallbacks<bool>(read_cb, write_cb, resource);
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
-                },
-                [&](shared_ptr<Resource<int64_t>> resource) {
-                  bindCallbacks<int64_t>(read_cb, write_cb, resource);
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
-                },
-                [&](shared_ptr<Resource<double>> resource) {
-                  bindCallbacks<double>(read_cb, write_cb, resource);
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
-                },
-                [&](shared_ptr<Resource<string>> resource) {
-                  bindCallbacks<string>(read_cb, write_cb, resource);
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
-                },
-                [&](shared_ptr<Resource<uint64_t>> resource) {
-                  bindCallbacks<uint64_t>(read_cb, write_cb, resource);
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
-                },
-                [&](shared_ptr<Resource<ObjectLink>> resource) {
-                  logger_->log(SeverityLevel::ERROR,
-                               "Object link building is not supported. "
-                               "Skipping resource {}",
-                               resource->getDescriptor()->name_);
-                },
-                [&](shared_ptr<Resource<vector<uint8_t>>> resource) {
-                  bindCallbacks<vector<uint8_t>>(read_cb, write_cb, resource);
-                  node = make_unique<DeviceNode>(resource->getDescriptor(),
-                                                 read_cb, write_cb);
-                });
+          match(
+              resource_variant_pair.second,
+              [&](shared_ptr<Resource<bool>> resource) {
+                logger_->log(SeverityLevel::TRACE,
+                             "Binding {} callbacks for Boolean data type!",
+                             toString(resource->getDescriptor()->operations_));
+                bindCallbacks<bool>(read_cb, write_cb, resource);
+                node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                               read_cb, write_cb);
+              },
+              [&](shared_ptr<Resource<int64_t>> resource) {
+                logger_->log(
+                    SeverityLevel::TRACE,
+                    "Binding {} callbacks for Signed Integer data type!",
+                    toString(resource->getDescriptor()->operations_));
+                bindCallbacks<int64_t>(read_cb, write_cb, resource);
+                node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                               read_cb, write_cb);
+              },
+              [&](shared_ptr<Resource<double>> resource) {
+                logger_->log(SeverityLevel::TRACE,
+                             "Binding {} callbacks for Double data type!",
+                             toString(resource->getDescriptor()->operations_));
+                bindCallbacks<double>(read_cb, write_cb, resource);
+                node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                               read_cb, write_cb);
+              },
+              [&](shared_ptr<Resource<string>> resource) {
+                logger_->log(SeverityLevel::TRACE,
+                             "Binding {} callbacks for String data type!",
+                             toString(resource->getDescriptor()->operations_));
+                bindCallbacks<string>(read_cb, write_cb, resource);
+                node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                               read_cb, write_cb);
+              },
+              [&](shared_ptr<Resource<uint64_t>> resource) {
+                logger_->log(
+                    SeverityLevel::TRACE,
+                    "Binding {} callbacks for Unsigned Integer data type!",
+                    toString(resource->getDescriptor()->operations_));
+                bindCallbacks<uint64_t>(read_cb, write_cb, resource);
+                node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                               read_cb, write_cb);
+              },
+              [&](shared_ptr<Resource<ObjectLink>> resource) {
+                logger_->log(SeverityLevel::ERROR,
+                             "Object link building is not supported. "
+                             "Skipping resource {}",
+                             resource->getDescriptor()->name_);
+              },
+              [&](shared_ptr<Resource<vector<uint8_t>>> resource) {
+                logger_->log(SeverityLevel::TRACE,
+                             "Binding {} callbacks for Byte array data type!",
+                             toString(resource->getDescriptor()->operations_));
+                bindCallbacks<vector<uint8_t>>(read_cb, write_cb, resource);
+                node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                               read_cb, write_cb);
+              });
           if (node) {
+            logger_->log(SeverityLevel::TRACE,
+                         "Creating a Device Element {} for Object instance {}",
+                         node->name, instance_id);
             builder_->addDeviceElement(instance_id, node->name, node->desc,
                                        node->element_type, node->data_type,
                                        node->read_cb, node->write_cb);
@@ -177,7 +231,7 @@ DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
     }
     return builder_->getResult();
   }
-  return shared_ptr<Information_Model::Device>();
+  return Information_Model::DevicePtr();
 }
 
 void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
@@ -187,13 +241,17 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
     if (builder_ && registry_) {
       auto device = buildDevice(event->device);
       if (device)
-        registry_->registerDevice(device);
+        logger_->log(SeverityLevel::TRACE, "Registering device {}:{}",
+                     device->getElementId(), device->getElementName());
+      registry_->registerDevice(device);
     }
     break;
   }
   case RegistryEventType::DEREGISTERED: {
     if (registry_)
-      registry_->deregisterDevice(event->identifier);
+      logger_->log(SeverityLevel::TRACE, "Deregistering device {}",
+                   event->identifier);
+    registry_->deregisterDevice(event->identifier);
     break;
   }
   default: { break; }

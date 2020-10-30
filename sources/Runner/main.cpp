@@ -8,6 +8,7 @@
 
 using namespace HaSLL;
 using namespace Technology_Adapter::testing;
+using namespace Information_Model::testing;
 using namespace std;
 
 int main(int argc, const char *argv[]) {
@@ -16,7 +17,7 @@ int main(int argc, const char *argv[]) {
     LoggerRepository::getInstance().configure(SeverityLevel::TRACE);
     auto adapter = make_shared<Technology_Adapter::LwM2M_TechnologyAdapter>(
         "serverConfig.json");
-    adapter->setInterfaces(make_shared<DeviceBuilderMock>(),
+    adapter->setInterfaces(make_shared<DeviceBuilderInterfaceMock>(),
                            make_shared<ModelRegistryMock>());
     adapter->start();
 

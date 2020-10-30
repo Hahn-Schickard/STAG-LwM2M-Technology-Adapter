@@ -7,7 +7,7 @@
 class LwM2M_RegistryEventHandler {
 public:
   using DeviceBuilderPtr =
-      std::shared_ptr<Technology_Adapter::DeviceBuilderInterface>;
+      std::shared_ptr<Information_Model::DeviceBuilderInterface>;
   using ModelRegistryPtr =
       std::shared_ptr<Technology_Adapter::ModelRegistryInterface>;
 

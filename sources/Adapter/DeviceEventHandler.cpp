@@ -159,7 +159,7 @@ DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
                 [&](shared_ptr<Resource<ObjectLink>> resource) {
                   logger_->log(SeverityLevel::ERROR,
                                "Object link building is not supported. "
-                               "Skipping resource []",
+                               "Skipping resource {}",
                                resource->getDescriptor()->name_);
                 },
                 [&](shared_ptr<Resource<vector<uint8_t>>> resource) {

@@ -8,11 +8,8 @@ conan_basic_setup()
 
 add_executable(example example.cpp)
 
-find_package(GTest REQUIRED)
-
 target_link_libraries(example PUBLIC 
                               ${CONAN_LIBS}
-                              GTest::GTest
 )
 
 set_target_properties(example PROPERTIES

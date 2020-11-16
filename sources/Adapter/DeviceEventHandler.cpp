@@ -68,7 +68,7 @@ private:
       return Information_Model::DataType::OPAQUE;
     }
     case LwM2M::DataType::TIME: {
-      return Information_Model::DataType::UNSIGNED_INTEGER;
+      return Information_Model::DataType::TIME;
     }
     case LwM2M::DataType::OBJECT_LINK: {
       // TODO: descide how to handle linking to other nodes
@@ -184,6 +184,14 @@ DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
                              "Binding {} callbacks for Double data type!",
                              toString(resource->getDescriptor()->operations_));
                 bindCallbacks<double>(read_cb, write_cb, resource);
+                node = make_unique<DeviceNode>(resource->getDescriptor(),
+                                               read_cb, write_cb);
+              },
+              [&](shared_ptr<Resource<DateTime>> resource) {
+                logger_->log(SeverityLevel::TRACE,
+                             "Binding {} callbacks for DateTime data type!",
+                             toString(resource->getDescriptor()->operations_));
+                bindCallbacks<DateTime>(read_cb, write_cb, resource);
                 node = make_unique<DeviceNode>(resource->getDescriptor(),
                                                read_cb, write_cb);
               },

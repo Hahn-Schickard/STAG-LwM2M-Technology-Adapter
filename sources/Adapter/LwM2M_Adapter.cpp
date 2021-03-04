@@ -5,14 +5,6 @@ using namespace std;
 using namespace LwM2M;
 
 namespace Technology_Adapter {
-
-LwM2M_TechnologyAdapter::LwM2M_TechnologyAdapter()
-    : TechnologyAdapter("LwM2M Technology Adapter"),
-      server_(make_unique<Server>(Configuration{string("model/descriptors.xml"),
-                                                string("0.0.0.0"), 5683, 5})),
-      event_handler_(make_unique<DeviceEventHandler>(server_->getEventSource(),
-                                                     getLogger())) {}
-
 LwM2M_TechnologyAdapter::LwM2M_TechnologyAdapter(const string filepath)
     : TechnologyAdapter("LwM2M Technology Adapter"),
       server_(make_unique<Server>(filepath)),

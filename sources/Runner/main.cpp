@@ -13,10 +13,10 @@ using namespace std;
 
 int main(int argc, const char *argv[]) {
   try {
-    LoggerRepository::initialise("loggerConfig.json");
+    LoggerRepository::initialise("config/loggerConfig.json");
     LoggerRepository::getInstance().configure(SeverityLevel::TRACE);
     auto adapter = make_shared<Technology_Adapter::LwM2M_TechnologyAdapter>(
-        "serverConfig.json");
+        "config/serverConfig.json");
     adapter->setInterfaces(make_shared<DeviceBuilderInterfaceMock>(),
                            make_shared<ModelRegistryMock>());
     adapter->start();

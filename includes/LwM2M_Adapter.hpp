@@ -1,8 +1,8 @@
 #ifndef _LWM2M_TECHNOLOGY_ADAPTER_HPP
 #define _LWM2M_TECHNOLOGY_ADAPTER_HPP
 
+#include "LwM2M/Server.hpp"
 #include "LwM2M_RegistryEventHandler.hpp"
-#include "LwM2M_Server.hpp"
 #include "TechnologyAdapter.hpp"
 
 namespace Technology_Adapter {
@@ -13,7 +13,6 @@ class LwM2M_TechnologyAdapter : public TechnologyAdapter {
   void interfaceSet() final;
 
 public:
-  LwM2M_TechnologyAdapter();
   LwM2M_TechnologyAdapter(const std::string filepath);
 
   void start() override;

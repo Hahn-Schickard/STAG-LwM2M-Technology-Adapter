@@ -1,8 +1,8 @@
-#include "DeviceRegistry.hpp"
 #include "Event_Model.hpp"
 #include "Logger.hpp"
+#include "LwM2M/DeviceRegistry.hpp"
+#include "LwM2M/RegistryEvent.hpp"
 #include "LwM2M_RegistryEventHandler.hpp"
-#include "RegistryEvent.hpp"
 
 #include <memory>
 
@@ -15,13 +15,11 @@ class DeviceEventHandler
 
   std::shared_ptr<Information_Model::Device>
   buildDevice(LwM2M::DevicePtr device);
-  void handleEvent(std::shared_ptr<LwM2M::RegistryEvent> event) override;
+  void handleEvent(LwM2M::RegistryEventPtr event) override;
 
 public:
-  DeviceEventHandler(
-      std::shared_ptr<Event_Model::EventSource<LwM2M::RegistryEvent>>
-          event_source,
-      std::shared_ptr<HaSLL::Logger> logger);
+  DeviceEventHandler(LwM2M::EventSourcePtr event_source,
+                     std::shared_ptr<HaSLL::Logger> logger);
 
   void setBuilderAndRegistratyInterfaces(DeviceBuilderPtr builder,
                                          ModelRegistryPtr registry) override;

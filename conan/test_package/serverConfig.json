@@ -1,6 +1,0 @@
-{
-    "descriptors_location": "model/descriptors.xml",
-    "ip_address": "0.0.0.0",
-    "server_port": 5683,
-    "read_timeout": 4
-}

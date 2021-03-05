@@ -19,24 +19,8 @@ set_target_properties(example PROPERTIES
 
 add_custom_command(TARGET example POST_BUILD 
                     COMMAND ${CMAKE_COMMAND} -E copy_directory
-                        ${PROJECT_SOURCE_DIR}/model
-                        $<TARGET_FILE_DIR:example>/model 
-                    COMMENT "Copying LwM2M Model descriptors."
-                        VERBATIM
-)
-
-add_custom_command(TARGET example POST_BUILD 
-                    COMMAND ${CMAKE_COMMAND} -E copy
-                        "${PROJECT_SOURCE_DIR}/loggerConfig.json"
-                        $<TARGET_FILE_DIR:example> 
-                    COMMENT "Copying Logger Configuration."
-                        VERBATIM
-)
-
-add_custom_command(TARGET example POST_BUILD 
-                    COMMAND ${CMAKE_COMMAND} -E copy
-                        "${PROJECT_SOURCE_DIR}/serverConfig.json"
-                        $<TARGET_FILE_DIR:example> 
-                    COMMENT "Copying Server Configuration."
+                        ${PROJECT_SOURCE_DIR}/config
+                        $<TARGET_FILE_DIR:example>/config 
+                    COMMENT "Copying configuration files."
                         VERBATIM
 )

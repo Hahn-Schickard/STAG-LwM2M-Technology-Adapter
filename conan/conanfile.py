@@ -10,7 +10,7 @@ class PackageConan(ConanFile):
     topics = ("conan", "stag", "modelling", "lwm2m", "technology-adapter")
     build_requires = "gtest/1.10.0"
     requires = [
-        "Technology_Adapter_Interface/0.2.0@hahn-schickard/stable",
+        "Technology_Adapter_Interface/0.1.4@hahn-schickard/stable",
         "Variant_Visitor/0.1.0@hahn-schickard/stable",
         "LwM2M_Server/0.2.1@hahn-schickard/stable"
     ]
@@ -22,14 +22,12 @@ class PackageConan(ConanFile):
     default_user = "Hahn-Schickard"
     exports_sources = [
         "../cmake*",
-        "../model*",
+        "../config*",
         "../includes*",
         "../sources*",
         "../unit_tests*",
         "../CMakeLists.txt",
         "../conanfile.txt",
-        "../loggerConfig.json",
-        "../serverConfig.json",
         "../README.md",
         "../LICENSE",
         "../NOTICE",

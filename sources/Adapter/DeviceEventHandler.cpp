@@ -10,6 +10,7 @@ using namespace Information_Model;
 using namespace Technology_Adapter;
 using namespace HaSLL;
 
+#define SECURITY_OBJECT 0
 #define SERVER_OBJECT 1
 
 struct DeviceNode {
@@ -149,7 +150,8 @@ DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
     builder_->buildDeviceBase(device->getDeviceId(), device->getName(),
                               string());
     for (auto object_pair : device->getObjects()) {
-      if (object_pair.second->getDescriptor()->id_ != SERVER_OBJECT) {
+      if ((object_pair.second->getDescriptor()->id_ != SECURITY_OBJECT) ||
+          (object_pair.second->getDescriptor()->id_ != SERVER_OBJECT)) {
         logger_->log(SeverityLevel::TRACE,
                      "Creating a Device Element group for {} Object ({})",
                      object_pair.second->getDescriptor()->id_,

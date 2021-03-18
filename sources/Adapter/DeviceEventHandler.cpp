@@ -10,6 +10,8 @@ using namespace Information_Model;
 using namespace Technology_Adapter;
 using namespace HaSLL;
 
+#define SERVER_OBJECT 1
+
 struct DeviceNode {
   string name;
   string desc;
@@ -147,26 +149,28 @@ DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
     builder_->buildDeviceBase(device->getDeviceId(), device->getName(),
                               string());
     for (auto object_pair : device->getObjects()) {
-      logger_->log(SeverityLevel::TRACE,
-                   "Creating a Device Element group for {}:{} Object",
-                   object_pair.second->getDescriptor()->id_,
-                   object_pair.second->getDescriptor()->name_);
-      auto object_id = builder_->addDeviceElementGroup(
-          to_string(object_pair.first),
-          object_pair.second->getDescriptor()->description_);
-      for (auto instance_pair : object_pair.second->getInstances()) {
-        logger_->log(
-            SeverityLevel::TRACE,
-            "Creating a Device Element Group for {} Object instance {}",
-            object_id, to_string(instance_pair.first));
-        auto instance_id = builder_->addDeviceElementGroup(
-            object_id, to_string(instance_pair.first), string());
-        for (auto resource_variant_pair :
-             instance_pair.second->getResources()) {
-          unique_ptr<DeviceNode> node;
-          optional<ReadFunctor> read_cb;
-          optional<WriteFunctor> write_cb;
-          match(resource_variant_pair.second,
+      if (object_pair.second->getDescriptor()->id_ != SERVER_OBJECT) {
+        logger_->log(SeverityLevel::TRACE,
+                     "Creating a Device Element group for {} Object ({})",
+                     object_pair.second->getDescriptor()->id_,
+                     object_pair.second->getDescriptor()->name_);
+        auto object_id = builder_->addDeviceElementGroup(
+            to_string(object_pair.first),
+            object_pair.second->getDescriptor()->description_);
+        for (auto instance_pair : object_pair.second->getInstances()) {
+          logger_->log(
+              SeverityLevel::TRACE,
+              "Creating a Device Element Group for {} Object instance {}",
+              object_id, to_string(instance_pair.first));
+          auto instance_id = builder_->addDeviceElementGroup(
+              object_id, to_string(instance_pair.first), string());
+          for (auto resource_variant_pair :
+               instance_pair.second->getResources()) {
+            unique_ptr<DeviceNode> node;
+            optional<ReadFunctor> read_cb;
+            optional<WriteFunctor> write_cb;
+            match(
+                resource_variant_pair.second,
                 [&](shared_ptr<Resource<bool>> resource) {
                   logger_->log(
                       SeverityLevel::TRACE,
@@ -236,13 +240,15 @@ DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
                   node = make_unique<DeviceNode>(resource->getDescriptor(),
                                                  read_cb, write_cb);
                 });
-          if (node) {
-            logger_->log(SeverityLevel::TRACE,
-                         "Creating a Device Element {} for Object instance {}",
-                         node->name, instance_id);
-            builder_->addDeviceElement(instance_id, node->name, node->desc,
-                                       node->element_type, node->data_type,
-                                       node->read_cb, node->write_cb);
+            if (node) {
+              logger_->log(
+                  SeverityLevel::TRACE,
+                  "Creating a Device Element {} for Object instance {}",
+                  node->name, instance_id);
+              builder_->addDeviceElement(instance_id, node->name, node->desc,
+                                         node->element_type, node->data_type,
+                                         node->read_cb, node->write_cb);
+            }
           }
         }
       }

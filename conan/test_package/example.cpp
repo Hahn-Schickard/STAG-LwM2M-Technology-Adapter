@@ -1,6 +1,6 @@
 
 #include "LoggerRepository.hpp"
-#include "LwM2M_Adapter.hpp"
+#include "LwM2M_Technology_Adapter/LwM2M_Adapter.hpp"
 
 #include <memory>
 

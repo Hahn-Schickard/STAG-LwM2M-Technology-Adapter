@@ -2,6 +2,7 @@
 ### Changed 
  - LwM2M Server to 0.2.2 
  - Technology Adapter Interface to 0.1.5
+ - install include path to resolve potential header name collisions
 
 ## [0.2.0] - 2021.03.05
 ### Added

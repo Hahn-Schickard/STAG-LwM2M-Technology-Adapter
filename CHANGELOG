@@ -1,3 +1,8 @@
+## [0.2.1] - Unreleased 
+### Changed 
+ - LwM2M Server to 0.2.2 
+ - Technology Adapter Interface to 0.1.5
+
 ## [0.2.0] - 2021.03.05
 ### Added
  - config dir

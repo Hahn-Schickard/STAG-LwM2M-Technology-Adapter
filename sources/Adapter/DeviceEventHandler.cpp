@@ -1,5 +1,5 @@
 #include "DeviceEventHandler.hpp"
-#include "DataVariant.hpp"
+#include "Information_Model/DataVariant.hpp"
 #include "Variant_Visitor.hpp"
 
 #include <functional>
@@ -286,7 +286,7 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
 
 DeviceEventHandler::DeviceEventHandler(EventSourcePtr event_source,
                                        shared_ptr<Logger> logger)
-    : EventListener(event_source), logger_(logger) {}
+    : EventListenerInterface(event_source), logger_(logger) {}
 
 void DeviceEventHandler::setBuilderAndRegistratyInterfaces(
     DeviceBuilderPtr builder, ModelRegistryPtr registry) {

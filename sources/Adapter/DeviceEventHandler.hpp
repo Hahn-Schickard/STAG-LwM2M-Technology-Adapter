@@ -1,4 +1,4 @@
-#include "Event_Model.hpp"
+#include "Event_Model/EventListenerInterface.hpp"
 #include "Logger.hpp"
 #include "LwM2M/DeviceRegistry.hpp"
 #include "LwM2M/RegistryEvent.hpp"
@@ -7,7 +7,7 @@
 #include <memory>
 
 class DeviceEventHandler
-    : public Event_Model::EventListener<LwM2M::RegistryEvent>,
+    : public Event_Model::EventListenerInterface<LwM2M::RegistryEvent>,
       public LwM2M_RegistryEventHandler {
   DeviceBuilderPtr builder_;
   ModelRegistryPtr registry_;

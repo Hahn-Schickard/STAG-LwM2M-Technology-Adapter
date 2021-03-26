@@ -3,7 +3,7 @@
 
 #include "LwM2M/Server.hpp"
 #include "LwM2M_RegistryEventHandler.hpp"
-#include "TechnologyAdapter.hpp"
+#include "Technology_Adapter_Interface/TechnologyAdapter.hpp"
 
 namespace Technology_Adapter {
 class LwM2M_TechnologyAdapter : public TechnologyAdapter {

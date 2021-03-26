@@ -1,7 +1,7 @@
-#include "DeviceBuilderInterface_MOCK.hpp"
+#include "Information_Model/mocks/DeviceBuilderInterface_MOCK.hpp"
 #include "LoggerRepository.hpp"
 #include "LwM2M_Adapter.hpp"
-#include "ModelRegistryInterface_MOCK.hpp"
+#include "Technology_Adapter_Interface/mocks/ModelRegistryInterface_MOCK.hpp"
 
 #include <memory>
 #include <thread>

@@ -53,7 +53,7 @@ macro(execute_conan_install)
       message(WARNING "Conan failed to install dependencies!")
       message("${conan_error}")
       message(WARNING "Trying to build sources locally!")
-      set(ARGS --build ${CONAN_ARGS})
+      set(ARGS --build=missing ${CONAN_ARGS})
       message(STATUS "Executing ${conan_command} install ${CONANFILE} ${ARGS}")
       execute_process(COMMAND ${conan_command} install ${CONANFILE} ${ARGS}
                       RESULT_VARIABLE return_code

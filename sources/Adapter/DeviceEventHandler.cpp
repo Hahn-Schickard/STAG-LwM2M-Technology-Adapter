@@ -110,7 +110,8 @@ string toString(OperationsType type) {
 template <typename T>
 Information_Model::DataVariant readWrapper(ResourcePtr<T> resource) {
   auto result = resource->read();
-  return Information_Model::DataVariant(result.get());
+  auto value = result.get();
+  return Information_Model::DataVariant(move(value));
 }
 
 template <typename T>

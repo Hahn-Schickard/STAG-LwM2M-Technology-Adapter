@@ -3,7 +3,10 @@
  - ContentFormat encoding not being set for certain responses
  
 ### Changed 
- - LwM2M Server to 0.2.3 
+ - LwM2M Server to 0.2.4
+
+### Added
+ - TimeStamp to DateTime conversion
 
 ## [0.2.1] - 2021.04.01 
 ### Changed 

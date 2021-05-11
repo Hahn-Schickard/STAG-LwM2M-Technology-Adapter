@@ -114,10 +114,26 @@ Information_Model::DataVariant readWrapper(ResourcePtr<T> resource) {
   return Information_Model::DataVariant(move(value));
 }
 
+template <>
+Information_Model::DataVariant readWrapper(ResourcePtr<TimeStamp> resource) {
+  auto result = resource->read();
+  auto timestamp = result.get();
+  auto value = DateTime(timestamp.getValue());
+  return Information_Model::DataVariant(move(value));
+}
+
 template <typename T>
 void writeWrapper(ResourcePtr<T> resource,
                   Information_Model::DataVariant variant) {
-  resource->write(get<T>(variant));
+  auto value = get<T>(variant);
+  resource->write(value);
+}
+
+template <>
+void writeWrapper(ResourcePtr<TimeStamp> resource,
+                  Information_Model::DataVariant variant) {
+  auto value = get<DateTime>(variant);
+  resource->write(TimeStamp(value.getValue()));
 }
 
 template <typename T>
@@ -201,12 +217,12 @@ DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
                   node = make_unique<DeviceNode>(resource->getDescriptor(),
                                                  read_cb, write_cb);
                 },
-                [&](shared_ptr<Resource<DateTime>> resource) {
+                [&](shared_ptr<Resource<TimeStamp>> resource) {
                   logger_->log(
                       SeverityLevel::TRACE,
                       "Binding {} callbacks for DateTime data type!",
                       LwM2M::toString(resource->getDescriptor()->operations_));
-                  bindCallbacks<DateTime>(read_cb, write_cb, resource);
+                  bindCallbacks<TimeStamp>(read_cb, write_cb, resource);
                   node = make_unique<DeviceNode>(resource->getDescriptor(),
                                                  read_cb, write_cb);
                 },

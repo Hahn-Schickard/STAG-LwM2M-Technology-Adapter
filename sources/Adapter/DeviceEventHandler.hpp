@@ -13,8 +13,9 @@ class DeviceEventHandler
   ModelRegistryPtr registry_;
   std::shared_ptr<HaSLL::Logger> logger_;
 
-  std::shared_ptr<Information_Model::Device>
-  buildDevice(LwM2M::DevicePtr device);
+  void addSubelements(std::string instance_id, LwM2M::Resources resources);
+  void populateRootElementGroup(LwM2M::ObjectsMap objects);
+  Information_Model::DevicePtr buildDevice(LwM2M::DevicePtr device);
   void handleEvent(LwM2M::RegistryEventPtr event) override;
 
 public:

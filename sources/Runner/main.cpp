@@ -27,6 +27,7 @@ bool registrationHandler(DevicePtr device) {
 }
 
 bool deregistrationHandler(const std::string &device_id) {
+  cout << endl;
   cout << "Device: " << device_id << " was deregistered!" << endl;
   return true;
 }
@@ -75,8 +76,10 @@ void print(MetricPtr element, size_t offset) {
 }
 
 void print(WritableMetricPtr element, size_t offset) {
+  auto value = element->getMetricValue();
+  auto value_string = toString(value);
   cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
-       << " value: " << toString(element->getMetricValue()) << endl;
+       << " value: " << value_string << endl;
   cout << string(offset, ' ') << "Writes " << toString(element->getDataType())
        << " value type" << endl;
   cout << endl;

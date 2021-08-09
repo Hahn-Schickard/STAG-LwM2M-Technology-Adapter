@@ -1,8 +1,8 @@
 {
-    "log_to_standard_output": false,
+    "log_to_standard_output": true,
     "logfile_name": "lwm2m_server.log",
     "logfile_path": "logs",
-    "logging_level": "debug",
+    "logging_level": "trace",
     "item_queue_size": 8192,
     "thread_count": 2,
     "maximum_file_count": 25,

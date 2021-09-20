@@ -22,7 +22,14 @@ void print(MetricPtr element, size_t offset);
 void print(DeviceElementGroupPtr elements, size_t offset);
 
 bool registrationHandler(DevicePtr device) {
-  thread([](DevicePtr device) { print(device); }, device).detach();
+  cout << "Registering new Device: " << device->getElementName() << endl;
+  thread(
+      [](DevicePtr device) {
+        print(device);
+        cout << string(160, '=') << endl;
+      },
+      device)
+      .detach();
   return true;
 }
 
@@ -70,16 +77,26 @@ void print(DeviceElementGroupPtr elements, size_t offset) {
 }
 
 void print(MetricPtr element, size_t offset) {
-  cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
-       << " value: " << toString(element->getMetricValue()) << endl;
-  cout << endl;
+  try {
+    cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
+         << " value: " << toString(element->getMetricValue()) << endl;
+    cout << endl;
+  } catch (exception &ex) {
+    cerr << "Received an exception while reading " << element->getElementName()
+         << " value. Exception: " << ex.what() << endl;
+  }
 }
 
 void print(WritableMetricPtr element, size_t offset) {
-  auto value = element->getMetricValue();
-  auto value_string = toString(value);
-  cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
-       << " value: " << value_string << endl;
+  try {
+    auto value = element->getMetricValue();
+    auto value_string = toString(value);
+    cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
+         << " value: " << value_string << endl;
+  } catch (exception &ex) {
+    cerr << "Received an exception while reading " << element->getElementName()
+         << " value. Exception: " << ex.what() << endl;
+  }
   cout << string(offset, ' ') << "Writes " << toString(element->getDataType())
        << " value type" << endl;
   cout << endl;
@@ -132,7 +149,13 @@ void print(DevicePtr device) {
     cout << "Device id: " << device->getElementId() << endl;
     cout << "Described as: " << device->getElementDescription() << endl;
     cout << endl;
-    print(device->getDeviceElementGroup(), 3);
+    try {
+      print(device->getDeviceElementGroup(), 3);
+    } catch (exception &ex) {
+      cerr << "Caught an unhandled exception while trying to print device "
+              "element group!"
+           << endl;
+    }
   } else {
     cerr << "Received a nullptr for Device!" << endl;
   }

@@ -243,18 +243,21 @@ void DeviceEventHandler::addSubelements(string instance_id,
 
 void DeviceEventHandler::populateRootElementGroup(LwM2M::ObjectsMap objects) {
   for (auto object_pair : objects) {
-    auto instances = object_pair.second->getInstances();
-    for (auto instance_pair : instances) {
-      logger_->log(SeverityLevel::TRACE,
-                   "Creating a Device Element group for Object {}:{}",
-                   object_pair.second->getDescriptor()->name_,
-                   instance_pair.first);
+    if ((object_pair.first != SERVER_OBJECT) ||
+        (object_pair.first != SECURITY_OBJECT)) {
+      auto instances = object_pair.second->getInstances();
+      for (auto instance_pair : instances) {
+        logger_->log(SeverityLevel::TRACE,
+                     "Creating a Device Element group for Object {}:{}",
+                     object_pair.second->getDescriptor()->name_,
+                     instance_pair.first);
 
-      auto instance_name = object_pair.second->getDescriptor()->name_ + " " +
-                           to_string(instance_pair.first);
-      auto instance_id = builder_->addDeviceElementGroup(
-          instance_name, object_pair.second->getDescriptor()->description_);
-      addSubelements(instance_id, instance_pair.second->getResources());
+        auto instance_name = object_pair.second->getDescriptor()->name_ + " " +
+                             to_string(instance_pair.first);
+        auto instance_id = builder_->addDeviceElementGroup(
+            instance_name, object_pair.second->getDescriptor()->description_);
+        addSubelements(instance_id, instance_pair.second->getResources());
+      }
     }
   }
 }

@@ -243,8 +243,8 @@ void DeviceEventHandler::addSubelements(string instance_id,
 
 void DeviceEventHandler::populateRootElementGroup(LwM2M::ObjectsMap objects) {
   for (auto object_pair : objects) {
-    if ((object_pair.first != SERVER_OBJECT) ||
-        (object_pair.first != SECURITY_OBJECT)) {
+    if ((object_pair.first != SECURITY_OBJECT) &&
+        (object_pair.first != SERVER_OBJECT)) {
       auto instances = object_pair.second->getInstances();
       for (auto instance_pair : instances) {
         logger_->log(SeverityLevel::TRACE,
@@ -258,6 +258,15 @@ void DeviceEventHandler::populateRootElementGroup(LwM2M::ObjectsMap objects) {
             instance_name, object_pair.second->getDescriptor()->description_);
         addSubelements(instance_id, instance_pair.second->getResources());
       }
+    } else {
+      logger_->log(SeverityLevel::TRACE,
+                   "Excluding {} Object {} from Information Model",
+                   (object_pair.first == SERVER_OBJECT
+                        ? "Server"
+                        : (object_pair.first == SECURITY_OBJECT
+                               ? "Security"
+                               : "THIS SHOULD NEVER GET HERE")),
+                   object_pair.second->getDescriptor()->name_);
     }
   }
 }

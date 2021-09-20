@@ -3,7 +3,7 @@
     "bindings": [
         {
             "type": "CoAP",
-            "location": "config/CoAPSocketConfig.json"
+            "location": "config/socketConfig.json"
         }
     ]
 }

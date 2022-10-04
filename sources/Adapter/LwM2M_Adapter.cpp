@@ -8,12 +8,12 @@ namespace Technology_Adapter {
 LwM2M_TechnologyAdapter::LwM2M_TechnologyAdapter(const string filepath)
     : TechnologyAdapter("LwM2M Technology Adapter"),
       server_(make_unique<Server>(filepath)),
-      event_handler_(make_unique<DeviceEventHandler>(server_->getEventSource(),
-                                                     getLogger())) {}
+      event_handler_(make_unique<DeviceEventHandler>(
+          server_->getEventSource(), getLogger())) {}
 
 void LwM2M_TechnologyAdapter::interfaceSet() {
-  event_handler_->setBuilderAndRegistratyInterfaces(getDeviceBuilder(),
-                                                    getModelRegistry());
+  event_handler_->setBuilderAndRegistryInterfaces(
+      getDeviceBuilder(), getModelRegistry());
 }
 
 void LwM2M_TechnologyAdapter::start() {

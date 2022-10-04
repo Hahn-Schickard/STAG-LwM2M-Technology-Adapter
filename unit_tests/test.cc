@@ -29,15 +29,16 @@ public:
 };
 
 void print(DataVariant variant) {
-  match(variant,
-        [&](bool value) { cout << "Boolean: " << to_string(value) << endl; },
-        [&](uint8_t value) { cout << "Byte: " << to_string(value) << endl; },
-        [&](int16_t value) { cout << "Short: " << to_string(value) << endl; },
-        [&](int32_t value) { cout << "Word: " << to_string(value) << endl; },
-        [&](int64_t value) { cout << "Long: " << to_string(value) << endl; },
-        [&](float value) { cout << "Float: " << to_string(value) << endl; },
-        [&](double value) { cout << "Double: " << to_string(value) << endl; },
-        [&](string value) { cout << "String: " << value << endl; });
+  match(
+      variant,
+      [&](bool value) { cout << "Boolean: " << to_string(value) << endl; },
+      [&](uint8_t value) { cout << "Byte: " << to_string(value) << endl; },
+      [&](int16_t value) { cout << "Short: " << to_string(value) << endl; },
+      [&](int32_t value) { cout << "Word: " << to_string(value) << endl; },
+      [&](int64_t value) { cout << "Long: " << to_string(value) << endl; },
+      [&](float value) { cout << "Float: " << to_string(value) << endl; },
+      [&](double value) { cout << "Double: " << to_string(value) << endl; },
+      [&](string value) { cout << "String: " << value << endl; });
 }
 
 int main() {
@@ -57,8 +58,8 @@ int main() {
   Read_Callback double_read_cb = bind(&CB_Test<double>::getInt, &double_obj);
   auto double_wrapper = CB_Wrapper<double>(
       bind(&CB_Test<double>::setInt, &double_obj, placeholders::_1));
-  Write_Callback double_write_cb = bind(&CB_Wrapper<double>::writeWrapper,
-                                        &double_wrapper, placeholders::_1);
+  Write_Callback double_write_cb = bind(
+      &CB_Wrapper<double>::writeWrapper, &double_wrapper, placeholders::_1);
 
   double_obj.setInt(10.1);
   print(double_read_cb());
@@ -69,8 +70,8 @@ int main() {
   Read_Callback shared_read_cb = bind(&CB_Test<string>::getInt, shared_obj);
   auto shared_wrapper = CB_Wrapper<string>(
       bind(&CB_Test<string>::setInt, shared_obj, placeholders::_1));
-  Write_Callback shared_write_cb = bind(&CB_Wrapper<string>::writeWrapper,
-                                        &shared_wrapper, placeholders::_1);
+  Write_Callback shared_write_cb = bind(
+      &CB_Wrapper<string>::writeWrapper, &shared_wrapper, placeholders::_1);
 
   shared_obj->setInt(string("Hello"));
   print(shared_read_cb());

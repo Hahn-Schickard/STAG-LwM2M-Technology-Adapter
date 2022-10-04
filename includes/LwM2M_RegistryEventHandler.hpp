@@ -13,8 +13,8 @@ public:
 
   virtual ~LwM2M_RegistryEventHandler() = default;
 
-  virtual void setBuilderAndRegistratyInterfaces(DeviceBuilderPtr builder,
-                                                 ModelRegistryPtr registry) = 0;
+  virtual void setBuilderAndRegistryInterfaces(
+      DeviceBuilderPtr builder, ModelRegistryPtr registry) = 0;
 };
 
 #endif //__LWM2M_BUILDING_AND_REGISTRATION_FACADE_HPP

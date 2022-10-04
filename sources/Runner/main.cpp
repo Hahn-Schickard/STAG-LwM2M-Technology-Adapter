@@ -1,9 +1,11 @@
+#include "HaSLL/LoggerManager.hpp"
+#include "HaSLL/SPD_LoggerRepository.hpp"
 #include "Information_Model/Metric.hpp"
 #include "Information_Model/WritableMetric.hpp"
 #include "Information_Model/mocks/DeviceMockBuilder.hpp"
-#include "LoggerRepository.hpp"
-#include "LwM2M_Adapter.hpp"
 #include "Technology_Adapter_Interface/mocks/ModelRegistryInterface_MOCK.hpp"
+
+#include "LwM2M_Adapter.hpp"
 
 #include <memory>
 #include <thread>
@@ -33,16 +35,17 @@ bool registrationHandler(DevicePtr device) {
   return true;
 }
 
-bool deregistrationHandler(const std::string &device_id) {
+bool deregistrationHandler(const std::string& device_id) {
   cout << endl;
   cout << "Device: " << device_id << " was deregistered!" << endl;
   return true;
 }
 
-int main(int argc, const char *argv[]) {
+int main(int argc, const char* argv[]) {
   try {
-    LoggerRepository::initialise("config/loggerConfig.json");
-    LoggerRepository::getInstance().configure(SeverityLevel::TRACE);
+    auto repo = make_shared<SPD_LoggerRepository>("config/loggerConfig.json");
+    LoggerManager::initialise(repo);
+
     auto adapter = make_shared<Technology_Adapter::LwM2M_TechnologyAdapter>(
         "config/serverConfig.json");
     adapter->setInterfaces(
@@ -63,7 +66,7 @@ int main(int argc, const char *argv[]) {
       }
     }
 
-  } catch (const exception &ex) {
+  } catch (const exception& ex) {
     exit(EXIT_FAILURE);
   }
   exit(EXIT_SUCCESS);
@@ -81,7 +84,7 @@ void print(MetricPtr element, size_t offset) {
     cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
          << " value: " << toString(element->getMetricValue()) << endl;
     cout << endl;
-  } catch (exception &ex) {
+  } catch (exception& ex) {
     cerr << "Received an exception while reading " << element->getElementName()
          << " value. Exception: " << ex.what() << endl;
   }
@@ -93,7 +96,7 @@ void print(WritableMetricPtr element, size_t offset) {
     auto value_string = toString(value);
     cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
          << " value: " << value_string << endl;
-  } catch (exception &ex) {
+  } catch (exception& ex) {
     cerr << "Received an exception while reading " << element->getElementName()
          << " value. Exception: " << ex.what() << endl;
   }
@@ -151,7 +154,7 @@ void print(DevicePtr device) {
     cout << endl;
     try {
       print(device->getDeviceElementGroup(), 3);
-    } catch (exception &ex) {
+    } catch (exception& ex) {
       cerr << "Caught an unhandled exception while trying to print device "
               "element group!"
            << endl;

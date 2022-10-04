@@ -4,7 +4,6 @@ from conans import ConanFile, CMake, tools
 
 class PackageTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    build_requires = "gtest/1.10.0"
     generators = "cmake"
 
     def build(self):
@@ -20,4 +19,4 @@ class PackageTestConan(ConanFile):
     def test(self):
         if not tools.cross_building(self.settings):
             os.chdir("bin")
-            self.run(".%sexample" % os.sep)
+            self.run(".%sexample" % os.sep, run_environment=True)

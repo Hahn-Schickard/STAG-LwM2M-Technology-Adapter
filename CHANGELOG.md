@@ -1,8 +1,9 @@
+# Changelog
 ## [0.2.2] - 2021.08.09
 ### Changed
  - LwM2M_Server to 0.3.0
  - Technology_Adapter_Interface to 0.1.6
- - device information printing in example runner 
+ - device information printing in example runner
  - DeviceBuilderInterfaceMock to DeviceMockBuilder to build Mock Devices
 
 ### Fixed
@@ -11,28 +12,28 @@
 ### Added
  - TimeStamp to DateTime conversion
 
-## [0.2.1] - 2021.04.01 
-### Changed 
- - LwM2M Server to 0.2.2 
+## [0.2.1] - 2021.04.01
+### Changed
+ - LwM2M Server to 0.2.2
  - Technology Adapter Interface to 0.1.5
  - install include path to resolve potential header name collisions
 
 ## [0.2.0] - 2021.03.05
 ### Added
  - config dir
- - readWrapper() function for LwM2M Resources 
+ - readWrapper() function for LwM2M Resources
 
 ### Changed
- - LwM2M Server to 0.2.1 
+ - LwM2M Server to 0.2.1
  - Conan package integration test CMakeLists.txt to use config directory
  - loggerConfig.json to be under config/ dir
- - serverConfig.json to be under config/ dir 
+ - serverConfig.json to be under config/ dir
  - model/ to be under config/ dir
 
 ## [0.1.1] - 2020.11.16
 ### Added
- - Posix Time handling from Information_Model 0.1.4
- 
+ - POSIX Time handling from Information_Model 0.1.4
+
 ### Changed
  - valgrind script to use better error detection
 
@@ -40,7 +41,7 @@
 ### Added
  - logger config file
  - lwm2m server config file
- - lwm2m model files 
+ - lwm2m model files
  - Write callback wrapper
 
 ### Changed
@@ -49,8 +50,8 @@
  - example.cpp to only load the minimum amount of symbols
  - LwM2M_TechnolgoyAdapter to confirm with 0.1.4 Technology Adapter Interface
 
-## [Initial commit] 
-### Added 
+## [Initial commit]
+### Added
  - LwM2M_Adapter
  - LwM2M_RegistryEventHandler
  - DeviceEventHandler
@@ -59,5 +60,5 @@
  - documentation
  - LICENSE and NOTICE files
  - Readme
- - Contributing guide 
+ - Contributing guide
  - Authors

@@ -72,10 +72,3 @@ macro(execute_conan_install)
     endif()
 
 endmacro(execute_conan_install)
-      endif()
-    endif()
-    message(STATUS "Using generated conan paths from: ${CMAKE_BINARY_DIR}/conan_paths.cmake")
-    include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-
-    
-endmacro(execute_conan_install)

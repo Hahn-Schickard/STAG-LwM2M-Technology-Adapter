@@ -4,10 +4,10 @@
  - LwM2M_Server to 0.3.0
  - Technology_Adapter_Interface to 0.1.6
  - device information printing in example runner
- - DeviceBuilderInterfaceMock to DeviceMockBuilder to build Mock Devices
+ - `DeviceBuilderInterfaceMock` to `DeviceMockBuilder` to build Mock Devices
 
 ### Fixed
- - ContentFormat encoding not being set for certain responses
+ - `ContentFormat` encoding not being set for certain responses
 
 ### Added
  - TimeStamp to DateTime conversion
@@ -21,7 +21,7 @@
 ## [0.2.0] - 2021.03.05
 ### Added
  - config dir
- - readWrapper() function for LwM2M Resources
+ - `readWrapper()` function for LwM2M Resources
 
 ### Changed
  - LwM2M Server to 0.2.1

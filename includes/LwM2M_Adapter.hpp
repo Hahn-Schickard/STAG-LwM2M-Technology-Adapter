@@ -1,9 +1,10 @@
 #ifndef _LWM2M_TECHNOLOGY_ADAPTER_HPP
 #define _LWM2M_TECHNOLOGY_ADAPTER_HPP
 
-#include "LwM2M/Server.hpp"
-#include "LwM2M_RegistryEventHandler.hpp"
+#include "LwM2M_Server/Server.hpp"
 #include "Technology_Adapter_Interface/TechnologyAdapter.hpp"
+
+#include "LwM2M_RegistryEventHandler.hpp"
 
 namespace Technology_Adapter {
 class LwM2M_TechnologyAdapter : public TechnologyAdapter {

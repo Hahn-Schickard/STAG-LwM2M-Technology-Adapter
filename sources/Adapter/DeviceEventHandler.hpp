@@ -1,7 +1,7 @@
 #include "Event_Model/EventListenerInterface.hpp"
 #include "HaSLL/Logger.hpp"
-#include "LwM2M/DeviceRegistry.hpp"
-#include "LwM2M/RegistryEvent.hpp"
+#include "LwM2M_Server/DeviceRegistry.hpp"
+#include "LwM2M_Server/RegistryEvent.hpp"
 
 #include "LwM2M_RegistryEventHandler.hpp"
 

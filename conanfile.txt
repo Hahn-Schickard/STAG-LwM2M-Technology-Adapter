@@ -3,6 +3,7 @@ gtest/1.10.0
 Technology_Adapter_Interface/0.1.9@hahn-schickard/stable
 Variant_Visitor/0.1.0@hahn-schickard/stable
 LwM2M_Server/0.5.0@hahn-schickard/stable
+HSCUL/0.2.0@hahn-schickard/stable
 
 [generators]
 cmake_paths

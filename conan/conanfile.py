@@ -12,7 +12,8 @@ class PackageConan(ConanFile):
     requires = [
         "Technology_Adapter_Interface/0.1.9@hahn-schickard/stable",
         "Variant_Visitor/0.1.0@hahn-schickard/stable",
-        "LwM2M_Server/0.5.0@hahn-schickard/stable"
+        "LwM2M_Server/0.5.0@hahn-schickard/stable",
+        "HSCUL/0.2.0@hahn-schickard/stable"
     ]
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],

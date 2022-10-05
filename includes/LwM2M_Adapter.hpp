@@ -14,7 +14,7 @@ class LwM2M_TechnologyAdapter : public TechnologyAdapter {
   void interfaceSet() final;
 
 public:
-  LwM2M_TechnologyAdapter(const std::string filepath);
+  LwM2M_TechnologyAdapter(const std::string& filepath);
 
   void start() override;
   void stop() override;

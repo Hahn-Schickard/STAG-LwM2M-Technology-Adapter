@@ -14,8 +14,9 @@ class DeviceEventHandler
   ModelRegistryPtr registry_;
   HaSLI::LoggerPtr logger_;
 
-  void addSubelements(std::string instance_id, LwM2M::Resources resources);
-  void populateRootElementGroup(LwM2M::ObjectsMap objects);
+  void addSubelements(
+      std::string instance_id, const LwM2M::Resources& resources);
+  void populateRootElementGroup(const LwM2M::ObjectsMap& objects);
   Information_Model::DevicePtr buildDevice(LwM2M::DevicePtr device);
   void handleEvent(LwM2M::RegistryEventPtr event) override;
 

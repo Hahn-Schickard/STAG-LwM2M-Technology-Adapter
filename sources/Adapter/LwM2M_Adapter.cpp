@@ -5,7 +5,7 @@ using namespace std;
 using namespace LwM2M;
 
 namespace Technology_Adapter {
-LwM2M_TechnologyAdapter::LwM2M_TechnologyAdapter(const string filepath)
+LwM2M_TechnologyAdapter::LwM2M_TechnologyAdapter(const string& filepath)
     : TechnologyAdapter("LwM2M Technology Adapter"),
       server_(make_unique<Server>(filepath)),
       event_handler_(make_unique<DeviceEventHandler>(

@@ -13,7 +13,7 @@ target_sources(${THIS} PRIVATE
 find_package(GTest REQUIRED)
 
 target_link_libraries(${THIS} PRIVATE
-                              Adapter
+                              ${PROJECT_NAME}_Adapter
                               GTest::GTest
 )
 
@@ -26,4 +26,3 @@ add_custom_command(TARGET ${THIS} POST_BUILD
                     COMMENT "Copying configuration files."
                         VERBATIM
 )
-

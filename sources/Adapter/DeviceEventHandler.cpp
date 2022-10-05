@@ -1,8 +1,11 @@
-#include "DeviceEventHandler.hpp"
+#include "HSCUL/Integer.hpp"
 #include "Information_Model/DataVariant.hpp"
+
+#include "DeviceEventHandler.hpp"
 #include "Variant_Visitor.hpp"
 
 #include <functional>
+#include <regex>
 
 using namespace std;
 using namespace LwM2M;
@@ -13,83 +16,54 @@ using namespace HaSLI;
 #define SECURITY_OBJECT 0
 #define SERVER_OBJECT 1
 
-struct DeviceNode {
-  string name;
-  string desc;
-  ElementType element_type;
-  Information_Model::DataType data_type;
-  optional<ReadFunctor> read_cb;
-  optional<WriteFunctor> write_cb;
-
-  DeviceNode(ResourceDescriptorPtr descriptor,
-      optional<ReadFunctor> read_callback,
-      optional<WriteFunctor> write_callback) {
-    name = descriptor->name_;
-    desc = descriptor->description_;
-    element_type = toElementType(descriptor->operations_);
-    data_type = toDataType(descriptor->data_type_);
-    read_cb = read_callback;
-    write_cb = write_callback;
+ElementType toElementType(OperationsType operations) {
+  switch (operations) {
+  case OperationsType::READ: {
+    return ElementType::READABLE;
   }
-
-private:
-  ElementType toElementType(OperationsType operations) {
-    switch (operations) {
-    case OperationsType::READ: {
-      return ElementType::READABLE;
-    }
-    case OperationsType::WRITE: {
-      return ElementType::WRITABLE;
-    }
-    case OperationsType::READ_AND_WRITE: {
-      return ElementType::WRITABLE;
-    }
-    case OperationsType::EXECUTE: {
-      return ElementType::FUNCTION;
-    }
-    case OperationsType::NO_OPERATION: {
-    }
-    default: {
-      return ElementType::UNDEFINED;
-    }
-    }
+  case OperationsType::EXECUTE: {
+    return ElementType::FUNCTION;
   }
-
-  Information_Model::DataType toDataType(LwM2M::DataType data_type) {
-    switch (data_type) {
-    case LwM2M::DataType::BOOLEAN: {
-      return Information_Model::DataType::BOOLEAN;
-    }
-    case LwM2M::DataType::SIGNED_INTEGER: {
-      return Information_Model::DataType::INTEGER;
-    }
-    case LwM2M::DataType::UNSIGNED_INTEGER: {
-      return Information_Model::DataType::UNSIGNED_INTEGER;
-    }
-    case LwM2M::DataType::FLOAT: {
-      return Information_Model::DataType::DOUBLE;
-    }
-    case LwM2M::DataType::STRING: {
-      return Information_Model::DataType::STRING;
-    }
-    case LwM2M::DataType::OPAQUE: {
-      return Information_Model::DataType::OPAQUE;
-    }
-    case LwM2M::DataType::TIME: {
-      return Information_Model::DataType::TIME;
-    }
-    case LwM2M::DataType::OBJECT_LINK: {
-      // TODO: descide how to handle linking to other nodes
-      return Information_Model::DataType::STRING;
-    }
-    case LwM2M::DataType::NONE: {
-    }
-    default: {
-      return Information_Model::DataType::UNKNOWN;
-    }
-    }
+  default:
+    return ElementType::WRITABLE;
   }
-};
+}
+
+Information_Model::DataType toDataType(LwM2M::DataType data_type) {
+  switch (data_type) {
+  case LwM2M::DataType::BOOLEAN: {
+    return Information_Model::DataType::BOOLEAN;
+  }
+  case LwM2M::DataType::SIGNED_INTEGER: {
+    return Information_Model::DataType::INTEGER;
+  }
+  case LwM2M::DataType::UNSIGNED_INTEGER: {
+    return Information_Model::DataType::UNSIGNED_INTEGER;
+  }
+  case LwM2M::DataType::FLOAT: {
+    return Information_Model::DataType::DOUBLE;
+  }
+  case LwM2M::DataType::STRING: {
+    return Information_Model::DataType::STRING;
+  }
+  case LwM2M::DataType::OPAQUE: {
+    return Information_Model::DataType::OPAQUE;
+  }
+  case LwM2M::DataType::TIME: {
+    return Information_Model::DataType::TIME;
+  }
+  case LwM2M::DataType::OBJECT_LINK: {
+    // TODO: deicide how to handle linking to other nodes
+    return Information_Model::DataType::STRING;
+  }
+  case LwM2M::DataType::NONE: {
+    [[fallthrough]];
+  }
+  default: {
+    return Information_Model::DataType::UNKNOWN;
+  }
+  }
+}
 
 string toString(OperationsType type) {
   switch (type) {
@@ -113,146 +87,127 @@ string toString(OperationsType type) {
   }
 }
 
-template <typename T>
-Information_Model::DataVariant readWrapper(ResourcePtr<T> resource) {
-  auto result = resource->read();
-  auto value = result.get();
-  return Information_Model::DataVariant(move(value));
+Information_Model::DataVariant readWrapper(ReadablePtr resource) {
+  auto response = resource->read();
+  auto value = response.get();
+  Information_Model::DataVariant result;
+  match(
+      value,
+      [&](TimeStamp timestamp) {
+        auto date_time = Information_Model::DateTime(timestamp.getValue());
+        result = Information_Model::DataVariant(date_time);
+      },
+      [&](ObjectLink object_link) {
+        result = Information_Model::DataVariant(object_link.toString());
+      },
+      [&](auto type) { result = Information_Model::DataVariant(type); });
+
+  return result;
 }
 
-template <>
-Information_Model::DataVariant readWrapper(ResourcePtr<TimeStamp> resource) {
-  auto result = resource->read();
-  auto timestamp = result.get();
-  auto value = DateTime(timestamp.getValue());
-  return Information_Model::DataVariant(move(value));
-}
-
-template <typename T>
 void writeWrapper(
-    ResourcePtr<T> resource, Information_Model::DataVariant variant) {
-  auto value = get<T>(variant);
-  resource->write(value);
+    WritablePtr resource, const Information_Model::DataVariant& variant) {
+  match(
+      variant,
+      [&](DateTime date_time) {
+        auto value = TimeStamp(date_time.getValue());
+        resource->write(value);
+      },
+      [&](string value) {
+        regex checker(
+            "[\\d]{1,5}:[\\d]{1,5}"); // potential optimization as a static
+        // if provided string value is between (2;12) characters long, it is
+        // possible that it is not a human readable value, but instead an
+        // ObjectLink
+        if (value.size() > 2 && value.size() < 12 && // NOLINT
+            regex_search(value, checker)) {
+          auto object_id = value.substr(0, value.find_first_of(':') - 1);
+          auto instance_id = value.substr(value.find_first_of(':') + 1);
+          auto object_link = ObjectLink(HSCUL::toUnsignedInteger(object_id),
+              HSCUL::toUnsignedInteger(instance_id));
+          resource->write(object_link);
+        } else {
+          resource->write(value);
+        }
+      },
+      [&](auto value) { resource->write(value); });
 }
 
-template <>
-void writeWrapper(
-    ResourcePtr<TimeStamp> resource, Information_Model::DataVariant variant) {
-  auto value = get<DateTime>(variant);
-  resource->write(TimeStamp(value.getValue()));
-}
-
-template <typename T>
-void bindCallbacks(optional<ReadFunctor>& read_cb,
-    optional<WriteFunctor>& write_cb, ResourcePtr<T> resource) {
-  switch (resource->getDescriptor()->operations_) {
-  case OperationsType::READ: {
-    read_cb = bind(&readWrapper<T>, resource);
-    break;
-  }
-  case OperationsType::WRITE: {
-    write_cb = bind(&writeWrapper<T>, resource, placeholders::_1);
-    break;
-  }
-  case OperationsType::READ_AND_WRITE: {
-    read_cb = bind(&readWrapper<T>, resource);
-    write_cb = bind(&writeWrapper<T>, resource, placeholders::_1);
-    break;
-  }
-  case OperationsType::EXECUTE:
-  case OperationsType::NO_OPERATION:
-  default: {
-    break;
-  }
+uint16_t lastElementID(ElementID id) {
+  if (id.hasResourceInstanceID()) {
+    return id.getResourceInstanceID();
+  } else if (id.hasResourceID()) {
+    return id.getResourceID();
+  } else if (id.hasObjectInstanceID()) {
+    return id.getObjectInstanceID();
+  } else {
+    return id.getObjectID();
   }
 }
 
 void DeviceEventHandler::addSubelements(
-    string instance_id, LwM2M::Resources resources) {
-
-  for (auto resource_variant_pair : resources) {
-    unique_ptr<DeviceNode> node;
-    optional<ReadFunctor> read_cb;
-    optional<WriteFunctor> write_cb;
-    match(
-        resource_variant_pair.second,
-        [&](shared_ptr<Resource<bool>> resource) {
-          logger_->log(SeverityLevel::TRACE,
-              "Binding {} callbacks for Boolean data type!",
-              LwM2M::toString(resource->getDescriptor()->operations_));
-          bindCallbacks<bool>(read_cb, write_cb, resource);
-          node = make_unique<DeviceNode>(
-              resource->getDescriptor(), read_cb, write_cb);
-        },
-        [&](shared_ptr<Resource<int64_t>> resource) {
-          logger_->log(SeverityLevel::TRACE,
-              "Binding {} callbacks for Signed Integer data type!",
-              LwM2M::toString(resource->getDescriptor()->operations_));
-          bindCallbacks<int64_t>(read_cb, write_cb, resource);
-          node = make_unique<DeviceNode>(
-              resource->getDescriptor(), read_cb, write_cb);
-        },
-        [&](shared_ptr<Resource<double>> resource) {
-          logger_->log(SeverityLevel::TRACE,
-              "Binding {} callbacks for Double data type!",
-              LwM2M::toString(resource->getDescriptor()->operations_));
-          bindCallbacks<double>(read_cb, write_cb, resource);
-          node = make_unique<DeviceNode>(
-              resource->getDescriptor(), read_cb, write_cb);
-        },
-        [&](shared_ptr<Resource<TimeStamp>> resource) {
-          logger_->log(SeverityLevel::TRACE,
-              "Binding {} callbacks for DateTime data type!",
-              LwM2M::toString(resource->getDescriptor()->operations_));
-          bindCallbacks<TimeStamp>(read_cb, write_cb, resource);
-          node = make_unique<DeviceNode>(
-              resource->getDescriptor(), read_cb, write_cb);
-        },
-        [&](shared_ptr<Resource<string>> resource) {
-          logger_->log(SeverityLevel::TRACE,
-              "Binding {} callbacks for String data type!",
-              LwM2M::toString(resource->getDescriptor()->operations_));
-          bindCallbacks<string>(read_cb, write_cb, resource);
-          node = make_unique<DeviceNode>(
-              resource->getDescriptor(), read_cb, write_cb);
-        },
-        [&](shared_ptr<Resource<uint64_t>> resource) {
-          logger_->log(SeverityLevel::TRACE,
-              "Binding {} callbacks for Unsigned Integer data type!",
-              LwM2M::toString(resource->getDescriptor()->operations_));
-          bindCallbacks<uint64_t>(read_cb, write_cb, resource);
-          node = make_unique<DeviceNode>(
-              resource->getDescriptor(), read_cb, write_cb);
-        },
-        [&](shared_ptr<Resource<ObjectLink>> resource) {
-          logger_->log(SeverityLevel::ERROR,
-              "Object link building is not supported. "
-              "Skipping resource {}",
-              resource->getDescriptor()->name_);
-        },
-        [&](shared_ptr<Resource<vector<uint8_t>>> resource) {
-          logger_->log(SeverityLevel::TRACE,
-              "Binding {} callbacks for Byte array data type!",
-              LwM2M::toString(resource->getDescriptor()->operations_));
-          bindCallbacks<vector<uint8_t>>(read_cb, write_cb, resource);
-          node = make_unique<DeviceNode>(
-              resource->getDescriptor(), read_cb, write_cb);
-        });
-    if (node) {
-      logger_->log(SeverityLevel::TRACE,
-          "Creating a Device Element {} for Object instance {}", node->name,
-          instance_id);
-      builder_->addDeviceElement(instance_id, node->name, node->desc,
-          node->element_type, node->data_type, node->read_cb, node->write_cb);
+    string instance_id, const LwM2M::Resources& resources) {
+  for (const auto& resource_variant_pair : resources) {
+    auto descriptor = resource_variant_pair.second->getDescriptor();
+    auto description = descriptor->description_;
+    auto element_type = toElementType(descriptor->operations_);
+    auto data_type = toDataType(descriptor->data_type_);
+    auto resource_instances =
+        resource_variant_pair.second->getResourceInstances();
+    for (const auto& resource_instance : resource_instances) {
+      auto name =
+          descriptor->name_ + to_string(lastElementID(resource_instance.first));
+      match(
+          resource_instance.second,
+          [&](ReadablePtr instance) {
+            ReadFunctor read_cb = bind(&readWrapper, instance);
+            logger_->log(SeverityLevel::TRACE,
+                "Binding LwM2M Resource {} with Read access to a {} data "
+                "reader.",
+                resource_instance.first.toString(),
+                LwM2M::toString(descriptor->data_type_));
+            builder_->addDeviceElement(instance_id, name, description,
+                element_type, data_type, read_cb);
+          },
+          [&](WritablePtr instance) {
+            WriteFunctor write_cb =
+                std::bind(&writeWrapper, instance, placeholders::_1);
+            logger_->log(SeverityLevel::TRACE,
+                "Binding LwM2M Resource {} with Write access to a {} data "
+                "writer.",
+                resource_instance.first.toString(),
+                LwM2M::toString(descriptor->data_type_));
+            builder_->addDeviceElement(instance_id, name, description,
+                element_type, data_type, std::nullopt, write_cb);
+          },
+          [&](ReadAndWritablePtr instance) {
+            ReadFunctor read_cb = std::bind(&readWrapper, instance);
+            WriteFunctor write_cb =
+                std::bind(&writeWrapper, instance, placeholders::_1);
+            logger_->log(SeverityLevel::TRACE,
+                "Binding LwM2M Resource {} with Read ahd Write access to a {} "
+                "data reader and writer.",
+                resource_instance.first.toString(),
+                LwM2M::toString(descriptor->data_type_));
+            builder_->addDeviceElement(instance_id, name, description,
+                element_type, data_type, read_cb, write_cb);
+          },
+          [&](auto) {
+            logger_->log(SeverityLevel::WARNING,
+                "Ignoring unsupported Resource {} with acces type {}",
+                resource_instance.first.toString(),
+                LwM2M::toString(descriptor->operations_));
+          });
     }
   }
 }
 
-void DeviceEventHandler::populateRootElementGroup(LwM2M::ObjectsMap objects) {
+void DeviceEventHandler::populateRootElementGroup(
+    const LwM2M::ObjectsMap& objects) {
   for (auto object_pair : objects) {
     if ((object_pair.first != SECURITY_OBJECT) &&
         (object_pair.first != SERVER_OBJECT)) {
-      auto instances = object_pair.second->getInstances();
+      auto instances = object_pair.second->getObjectInstances();
       for (auto instance_pair : instances) {
         logger_->log(SeverityLevel::TRACE,
             "Creating a Device Element group for Object {}:{}",
@@ -296,19 +251,26 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
   case RegistryEventType::REGISTERED:
   case RegistryEventType::UPDATED: {
     if (builder_ && registry_) {
-      auto device = buildDevice(event->device_);
-      if (device)
-        logger_->log(SeverityLevel::TRACE, "Registering device {}:{}",
-            device->getElementId(), device->getElementName());
-      registry_->registerDevice(device);
+      if (event->device_.has_value()) {
+        auto device = buildDevice(event->device_.value());
+        if (device) {
+          logger_->log(SeverityLevel::TRACE, "Registering device {}:{}",
+              device->getElementId(), device->getElementName());
+          registry_->registerDevice(device);
+        }
+      } else {
+        logger_->log(SeverityLevel::WARNING,
+            "Received Device Updated event without Device value");
+      }
     }
     break;
   }
   case RegistryEventType::DEREGISTERED: {
-    if (registry_)
+    if (registry_) {
       logger_->log(
           SeverityLevel::TRACE, "Deregistering device {}", event->identifier_);
-    registry_->deregisterDevice(event->identifier_);
+      registry_->deregisterDevice(event->identifier_);
+    }
     break;
   }
   default: {
@@ -317,9 +279,11 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
   }
 }
 
+// NEVER move the logger into the DeviceEventHandler, otherwise the provider
+// WILL loose it
 DeviceEventHandler::DeviceEventHandler(
-    EventSourcePtr event_source, LoggerPtr logger)
-    : EventListenerInterface(event_source), logger_(logger) {}
+    EventSourcePtr event_source, LoggerPtr logger) // NOLINT
+    : EventListenerInterface(event_source), logger_(logger) {} // NOLINT
 
 void DeviceEventHandler::setBuilderAndRegistryInterfaces(
     DeviceBuilderPtr builder, ModelRegistryPtr registry) {

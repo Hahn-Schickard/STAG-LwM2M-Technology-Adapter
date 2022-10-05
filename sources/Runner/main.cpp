@@ -17,18 +17,21 @@ using namespace std;
 
 using ::testing::NiceMock;
 
-void print(DevicePtr device);
-void print(DeviceElementPtr element, size_t offset);
-void print(WritableMetricPtr element, size_t offset);
-void print(MetricPtr element, size_t offset);
-void print(DeviceElementGroupPtr elements, size_t offset);
+void print(const DevicePtr& device);
+void print(NonemptyDeviceElementPtr element, size_t offset);
+void print(NonemptyWritableMetricPtr element, size_t offset);
+void print(NonemptyMetricPtr element, size_t offset);
+void print(NonemptyDeviceElementGroupPtr elements, size_t offset);
 
-bool registrationHandler(DevicePtr device) {
+static constexpr size_t BASE_OFFSET = 160;
+static constexpr size_t ELEMENT_OFFSET = 3;
+
+bool registrationHandler(const DevicePtr& device) {
   cout << "Registering new Device: " << device->getElementName() << endl;
   thread(
-      [](DevicePtr device) {
+      [](const DevicePtr& device) {
         print(device);
-        cout << string(160, '=') << endl;
+        cout << string(BASE_OFFSET, '=') << endl;
       },
       device)
       .detach();
@@ -58,7 +61,7 @@ int main(int argc, const char* argv[]) {
     adapter->start();
 
     if (argc > 1) {
-      int sleep_period = atoi(argv[1]);
+      int sleep_period = atoi(argv[1]); // NOLINT
       this_thread::sleep_for(chrono::seconds(sleep_period));
       adapter->stop();
     } else {
@@ -72,94 +75,49 @@ int main(int argc, const char* argv[]) {
   exit(EXIT_SUCCESS);
 }
 
-void print(DeviceElementGroupPtr elements, size_t offset) {
+void print(NonemptyDeviceElementGroupPtr elements, size_t offset) {
   cout << string(offset, ' ') << "Group contains elements:" << endl;
   for (auto element : elements->getSubelements()) {
-    print(element, offset + 3);
+    print(element, offset + ELEMENT_OFFSET);
   }
 }
 
-void print(MetricPtr element, size_t offset) {
-  try {
-    cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
-         << " value: " << toString(element->getMetricValue()) << endl;
-    cout << endl;
-  } catch (exception& ex) {
-    cerr << "Received an exception while reading " << element->getElementName()
-         << " value. Exception: " << ex.what() << endl;
-  }
+void print(NonemptyMetricPtr element, size_t offset) {
+  cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
+       << " value: " << toString(element->getMetricValue()) << endl;
+  cout << endl;
 }
 
-void print(WritableMetricPtr element, size_t offset) {
-  try {
-    auto value = element->getMetricValue();
-    auto value_string = toString(value);
-    cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
-         << " value: " << value_string << endl;
-  } catch (exception& ex) {
-    cerr << "Received an exception while reading " << element->getElementName()
-         << " value. Exception: " << ex.what() << endl;
-  }
+void print(NonemptyWritableMetricPtr element, size_t offset) {
+  cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
+       << " value: " << toString(element->getMetricValue()) << endl;
   cout << string(offset, ' ') << "Writes " << toString(element->getDataType())
        << " value type" << endl;
   cout << endl;
 }
 
-void print(DeviceElementPtr element, size_t offset) {
+void print(NonemptyDeviceElementPtr element, size_t offset) {
   cout << string(offset, ' ') << "Element name: " << element->getElementName()
        << endl;
   cout << string(offset, ' ') << "Element id: " << element->getElementId()
        << endl;
   cout << string(offset, ' ')
        << "Described as: " << element->getElementDescription() << endl;
-  cout << string(offset, ' ')
-       << "Element type: " << toString(element->getElementType()) << endl;
 
-  switch (element->getElementType()) {
-  case ElementType::GROUP: {
-    print(static_pointer_cast<DeviceElementGroup>(element), offset);
-    break;
-  }
-  case ElementType::READABLE: {
-    print(static_pointer_cast<Metric>(element), offset);
-    break;
-  }
-  case ElementType::WRITABLE: {
-    print(static_pointer_cast<WritableMetric>(element), offset);
-    break;
-  }
-  case ElementType::FUNCTION: {
-    cerr << string(offset, ' ') << "Function element types are not implemented!"
-         << endl;
-    break;
-  }
-  case ElementType::OBSERVABLE: {
-    cerr << string(offset, ' ')
-         << "Observable elements types are not implemented!" << endl;
-    break;
-  }
-  case ElementType::UNDEFINED:
-  default: {
-    cerr << string(offset, ' ') << "Is not a valid element type!" << endl;
-    break;
-  }
-  }
+  match(
+      element->specific_interface,
+      [offset](NonemptyDeviceElementGroupPtr interface) {
+        print(interface, offset);
+      },
+      [offset](NonemptyMetricPtr interface) { print(interface, offset); },
+      [offset](
+          NonemptyWritableMetricPtr interface) { print(interface, offset); });
 }
 
-void print(DevicePtr device) {
-  if (device) {
-    cout << "Device name: " << device->getElementName() << endl;
-    cout << "Device id: " << device->getElementId() << endl;
-    cout << "Described as: " << device->getElementDescription() << endl;
-    cout << endl;
-    try {
-      print(device->getDeviceElementGroup(), 3);
-    } catch (exception& ex) {
-      cerr << "Caught an unhandled exception while trying to print device "
-              "element group!"
-           << endl;
-    }
-  } else {
-    cerr << "Received a nullptr for Device!" << endl;
-  }
+void print(const DevicePtr& device) {
+  cout << "Device name: " << device->getElementName() << endl;
+  cout << "Device id: " << device->getElementId() << endl;
+  cout << "Described as: " << device->getElementDescription() << endl;
+  cout << endl;
+  print(device->getDeviceElementGroup(), ELEMENT_OFFSET);
 }

@@ -13,8 +13,8 @@ using namespace Information_Model;
 using namespace Technology_Adapter;
 using namespace HaSLI;
 
-#define SECURITY_OBJECT 0
-#define SERVER_OBJECT 1
+static constexpr uint8_t SECURITY_OBJECT = 0;
+static constexpr uint8_t SERVER_OBJECT = 1;
 
 ElementType toElementType(OperationsType operations) {
   switch (operations) {

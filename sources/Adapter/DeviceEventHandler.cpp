@@ -114,11 +114,11 @@ void writeWrapper(
         resource->write(value);
       },
       [&](string value) {
-        regex checker(
-            "[\\d]{1,5}:[\\d]{1,5}"); // potential optimization as a static
+        // potential optimization as a static
+        regex checker("[\\d]{1,5}:[\\d]{1,5}");
         // if provided string value is between (2;12) characters long, it is
         // possible that it is not a human readable value, but instead an
-        // ObjectLink
+        // ObjectLink, check it with the regex pattern to make sure
         if (value.size() > 2 && value.size() < 12 && // NOLINT
             regex_search(value, checker)) {
           auto object_id = value.substr(0, value.find_first_of(':') - 1);

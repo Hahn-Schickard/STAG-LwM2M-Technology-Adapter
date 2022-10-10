@@ -133,18 +133,6 @@ void writeWrapper(
       [&](auto value) { resource->write(value); });
 }
 
-uint16_t lastElementID(ElementID id) {
-  if (id.hasResourceInstanceID()) {
-    return id.getResourceInstanceID();
-  } else if (id.hasResourceID()) {
-    return id.getResourceID();
-  } else if (id.hasObjectInstanceID()) {
-    return id.getObjectInstanceID();
-  } else {
-    return id.getObjectID();
-  }
-}
-
 void DeviceEventHandler::addSubelements(
     string instance_id, const LwM2M::Resources& resources) {
   for (const auto& resource_variant_pair : resources) {

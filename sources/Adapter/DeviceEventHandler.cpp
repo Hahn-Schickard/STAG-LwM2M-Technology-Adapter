@@ -149,16 +149,14 @@ void DeviceEventHandler::addSubelements(
     string instance_id, const LwM2M::Resources& resources) {
   for (const auto& resource_variant_pair : resources) {
     auto descriptor = resource_variant_pair.second->getDescriptor();
+    auto name = descriptor->name_;
     auto description = descriptor->description_;
     auto element_type = toElementType(descriptor->operations_);
     auto data_type = toDataType(descriptor->data_type_);
     auto resource_instances =
         resource_variant_pair.second->getResourceInstances();
     for (const auto& resource_instance : resource_instances) {
-      auto name =
-          descriptor->name_ + to_string(lastElementID(resource_instance.first));
-      match(
-          resource_instance.second,
+      match(resource_instance.second,
           [&](ReadablePtr instance) {
             ReadFunctor read_cb = bind(&readWrapper, instance);
             logger_->log(SeverityLevel::TRACE,

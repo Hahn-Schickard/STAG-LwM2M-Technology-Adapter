@@ -8,7 +8,7 @@ conan_basic_setup()
 
 add_executable(example example.cpp)
 
-target_link_libraries(example PUBLIC 
+target_link_libraries(example PUBLIC
                               ${CONAN_LIBS}
 )
 
@@ -17,10 +17,10 @@ set_target_properties(example PROPERTIES
                               CXX_STANDARD_REQUIRED ON
 )
 
-add_custom_command(TARGET example POST_BUILD 
+add_custom_command(TARGET example POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory
-                        ${PROJECT_SOURCE_DIR}/config
-                        $<TARGET_FILE_DIR:example>/config 
+                        ${PROJECT_SOURCE_DIR}/../config
+                        $<TARGET_FILE_DIR:example>/config
                     COMMENT "Copying configuration files."
                         VERBATIM
 )

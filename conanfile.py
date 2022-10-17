@@ -22,32 +22,31 @@ class PackageConan(ConanFile):
                        "fPIC": True}
     default_user = "Hahn-Schickard"
     exports_sources = [
-        "../cmake*",
-        "../config*",
-        "../includes*",
-        "../sources*",
-        "../unit_tests*",
-        "../CMakeLists.txt",
-        "../conanfile.txt",
-        "../README.md",
-        "../LICENSE",
-        "../NOTICE",
-        "../AUTHORS",
+        "cmake*",
+        "config*",
+        "includes*",
+        "sources*",
+        "unit_tests*",
+        "CMakeLists.txt",
+        "conanfile.py",
+        "LICENSE",
+        "NOTICE",
+        "AUTHORS"
     ]
     _cmake = None
+    generators = ['cmake', 'cmake_paths', 'cmake_find_package']
 
     @property
-    def _source_subfolder(self):
-        current_file_loc = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(current_file_loc, "..")
+    def cwd(self):
+        return os.path.dirname(os.path.realpath(__file__))
 
     def set_name(self):
-        content = load(os.path.join(self._source_subfolder, "CMakeLists.txt"))
-        name = re.search("set\(THIS (.*)\)", content).group(1)
+        content = load(os.path.join(self.cwd, 'CMakeLists.txt'))
+        name = re.search('set\(THIS (.*)\)', content).group(1)
         self.name = name.strip()
 
     def config_options(self):
-        if self.settings.os == "Windows":
+        if self.settings.os == 'Windows':
             del self.options.fPIC
 
     def _configure_cmake(self):
@@ -55,10 +54,9 @@ class PackageConan(ConanFile):
             return self._cmake
         self._cmake = CMake(self)
         self._cmake.verbose = True
-        self._cmake.definitions["STATIC_CODE_ANALYSIS"] = False
-        self._cmake.definitions["USE_CONAN"] = True
-        self._cmake.configure(build_dir=os.path.join(
-            self.build_folder, "build"))
+        self._cmake.definitions['STATIC_CODE_ANALYSIS'] = False
+        self._cmake.definitions['USE_CONAN'] = True
+        self._cmake.configure()
         return self._cmake
 
     def build(self):
@@ -68,13 +66,11 @@ class PackageConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        self.copy(pattern="LICENSE", dst="licenses",
-                  src=self._source_subfolder)
-        self.copy(pattern="NOTICE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="AUTHORS", dst="licenses",
-                  src=self._source_subfolder)
+        self.copy(pattern='LICENSE', dst='licenses', src=self.cwd)
+        self.copy(pattern='NOTICE', dst='licenses', src=self.cwd)
+        self.copy(pattern='AUTHORS', dst='licenses', src=self.cwd)
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = self.name
-        self.cpp_info.names["cmake_find_package_multi"] = self.name
         self.cpp_info.libs = tools.collect_libs(self)
+        self.output.info('Collected libs: \n{}'.format(
+            '\n'.join(self.cpp_info.libs)))

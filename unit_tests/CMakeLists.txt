@@ -7,7 +7,7 @@ file(GLOB TestSuite "${CMAKE_CURRENT_LIST_DIR}/TestSuite/*")
 find_package(GTest REQUIRED)
 
 add_executable(${THIS})
-target_sources(${THIS} PRIVATE 
+target_sources(${THIS} PRIVATE
                        "testRunner.cpp"
                        ${TestSuite}
 )

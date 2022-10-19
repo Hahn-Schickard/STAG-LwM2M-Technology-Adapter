@@ -2,6 +2,7 @@
 #include "HaSLL/SPD_LoggerRepository.hpp"
 #include "LwM2M_Technology_Adapter/LwM2M_Adapter.hpp"
 
+#include <iostream>
 #include <memory>
 
 using namespace HaSLL;

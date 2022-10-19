@@ -1,4 +1,24 @@
 # Changelog
+## [0.2.3] - 2022.10.19
+### Changed
+ - conan packaging layout
+ - Contribution guide 
+ - code formatting rules
+ - Technology_Adapter_Interface dependency to v0.1.9
+ - LwM2M_Server dependency to v0.5.0
+ - DeviceEventHandler.cpp to work with LwM2M v0.5.0 Device Model
+ - DeviceEventHandler.hpp to use HaSLL v0.3.1 implementation
+ - main.cpp to use HaSLL v0.3.1 implementation
+ - integration test to check for broken dependency links
+
+### Fixed
+ - Third Party license documentation in License file
+
+### Removed
+ - unused license mentions from Notice file
+ - conan directory
+ - conanfile.txt
+
 ## [0.2.2] - 2021.08.09
 ### Changed
  - LwM2M_Server to 0.3.0

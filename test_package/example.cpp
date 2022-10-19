@@ -2,7 +2,6 @@
 #include "HaSLL/SPD_LoggerRepository.hpp"
 #include "LwM2M_Technology_Adapter/LwM2M_Adapter.hpp"
 
-#include <iostream>
 #include <memory>
 
 using namespace HaSLL;
@@ -13,17 +12,19 @@ int main() {
   try {
     auto repo = make_shared<SPD_LoggerRepository>("config/loggerConfig.json");
     LoggerManager::initialise(repo);
+    auto logger = LoggerManager::registerLogger("main");
 
     auto adapter =
         make_shared<LwM2M_TechnologyAdapter>("config/serverConfig.json");
 
     try {
       adapter->start();
-      cerr << "Adapter started without interfaces being set" << endl;
+      logger->error("Adapter started without interfaces being set");
       exit(EXIT_FAILURE);
     } catch (const exception& ex) {
-      cout << "Adapter did not start due to: " << ex.what() << endl
-           << "Integration test successful" << endl;
+      logger->info(
+          "Adapter did not start due to: {}. INTEGRATION TEST SUCCESSFUL.",
+          ex.what());
       exit(EXIT_SUCCESS);
     }
   } catch (const exception& ex) {

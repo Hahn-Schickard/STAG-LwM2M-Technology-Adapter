@@ -1,5 +1,5 @@
 {
-    "log_to_standard_output": false,
+    "log_to_standard_output": true,
     "logfile_name": "lwm2m_server.log",
     "logfile_path": "logs",
     "logging_level": "debug",

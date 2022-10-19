@@ -9,10 +9,22 @@ using namespace std;
 using namespace Technology_Adapter;
 
 int main() {
-  auto repo = make_shared<SPD_LoggerRepository>("config/loggerConfig.json");
-  LoggerManager::initialise(repo);
   try {
-    make_shared<LwM2M_TechnologyAdapter>("config/serverConfig.json");
+    auto repo = make_shared<SPD_LoggerRepository>("config/loggerConfig.json");
+    LoggerManager::initialise(repo);
+
+    auto adapter =
+        make_shared<LwM2M_TechnologyAdapter>("config/serverConfig.json");
+
+    try {
+      adapter->start();
+      cerr << "Adapter started without interfaces being set" << endl;
+      exit(EXIT_FAILURE);
+    } catch (const exception& ex) {
+      cout << "Adapter did not start due to: " << ex.what() << endl
+           << "Integration test successful" << endl;
+      exit(EXIT_SUCCESS);
+    }
   } catch (const exception& ex) {
     exit(EXIT_FAILURE);
   }

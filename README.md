@@ -1,5 +1,3 @@
-<img src="docs/images/vendor-logo.png" alt="" width="200"/>
-
 # LwM2M Technology Adapter
 
 ## Description

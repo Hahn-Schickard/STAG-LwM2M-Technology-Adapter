@@ -16,14 +16,19 @@ int main() {
     LoggerManager::initialise(repo);
 
     make_shared<LwM2M_TechnologyAdapter>("config/serverConfig.json");
-
-    cout << "Integration test successful." << endl;
-    exit(EXIT_SUCCESS);
+    try {
+      adapter->start();
+      cerr << "Adapter started without interfaces being set" << endl;
+      exit(EXIT_FAILURE);
+    } catch (const exception& ex) {
+      cout << "Integration test successful." << endl;
+      exit(EXIT_SUCCESS);
+    }
   } catch (const exception& ex) {
-    cout << "An unhandled exception occurred during integration test. "
+    cerr << "An unhandled exception occurred during integration test. "
             "Exception: "
          << ex.what() << endl;
-    cout << "Integration test failed" << endl;
+    cerr << "Integration test failed" << endl;
     exit(EXIT_FAILURE);
   }
 }

@@ -15,7 +15,8 @@ int main() {
     auto repo = make_shared<SPD_LoggerRepository>("config/loggerConfig.json");
     LoggerManager::initialise(repo);
 
-    make_shared<LwM2M_TechnologyAdapter>("config/serverConfig.json");
+    auto adapter =
+        make_shared<LwM2M_TechnologyAdapter>("config/serverConfig.json");
     try {
       adapter->start();
       cerr << "Adapter started without interfaces being set" << endl;

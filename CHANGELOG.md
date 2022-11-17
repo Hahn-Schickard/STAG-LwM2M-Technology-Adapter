@@ -1,4 +1,13 @@
 # Changelog
+## [0.2.3] - 2022.11.17
+### Changed
+ - conan packaging recipe
+ - gtest dependency to fuzzy v1.11
+ - Technology_Adapter_Interface dependency to fuzzy v0.1
+ - Variant_Visitor dependency to fuzzy v0.1
+ - LwM2M_Server dependency to fuzzy v0.5
+ - HSCUL dependency to fuzzy v0.2
+
 ## [0.2.2] - 2021.08.09
 ### Changed
  - LwM2M_Server to 0.3.0

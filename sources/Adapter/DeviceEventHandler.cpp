@@ -144,7 +144,8 @@ void DeviceEventHandler::addSubelements(
     auto resource_instances =
         resource_variant_pair.second->getResourceInstances();
     for (const auto& resource_instance : resource_instances) {
-      match(resource_instance.second,
+      match(
+          resource_instance.second,
           [&](ReadablePtr instance) {
             ReadFunctor read_cb = bind(&readWrapper, instance);
             logger_->log(SeverityLevel::TRACE,
@@ -153,7 +154,7 @@ void DeviceEventHandler::addSubelements(
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->data_type_));
             builder_->addDeviceElement(instance_id, name, description,
-                element_type, data_type, read_cb);
+                element_type, data_type, read_cb, std::nullopt, std::nullopt);
           },
           [&](WritablePtr instance) {
             WriteFunctor write_cb =
@@ -164,7 +165,7 @@ void DeviceEventHandler::addSubelements(
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->data_type_));
             builder_->addDeviceElement(instance_id, name, description,
-                element_type, data_type, std::nullopt, write_cb);
+                element_type, data_type, std::nullopt, write_cb, std::nullopt);
           },
           [&](ReadAndWritablePtr instance) {
             ReadFunctor read_cb = std::bind(&readWrapper, instance);
@@ -176,7 +177,7 @@ void DeviceEventHandler::addSubelements(
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->data_type_));
             builder_->addDeviceElement(instance_id, name, description,
-                element_type, data_type, read_cb, write_cb);
+                element_type, data_type, read_cb, write_cb, std::nullopt);
           },
           [&](auto) {
             logger_->log(SeverityLevel::WARNING,

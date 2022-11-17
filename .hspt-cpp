@@ -1,6 +1,6 @@
 {
     "project_template": "cpp",
-    "project_template_version": "Release_v0.0.0",
+    "project_template_version": "0.1.14",
     "project_name_long": "LwM2M Technology Adapter",
     "project_name_short": "LwM2M_TA",
     "project_description": "Implements a Technology Adapter for Lightweight Machine To Machine (LwM2M) Communications protocol. The adapter functions as a LwM2M Server and uses Hahn-Schickar LwM2M Server for C++17 implementation.",

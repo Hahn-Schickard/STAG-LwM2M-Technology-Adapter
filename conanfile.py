@@ -2,18 +2,17 @@ from conans import ConanFile, CMake, tools
 from conans.tools import load
 import re
 import os
-import shutil
 
 
 class PackageConan(ConanFile):
     license = "Apache 2.0"
     topics = ("conan", "stag", "modelling", "lwm2m", "technology-adapter")
-    build_requires = "gtest/1.10.0"
+    build_requires = "gtest/[~1.11]"
     requires = [
-        "Technology_Adapter_Interface/0.1.9@hahn-schickard/stable",
-        "Variant_Visitor/0.1.0@hahn-schickard/stable",
-        "LwM2M_Server/0.5.0@hahn-schickard/stable",
-        "HSCUL/0.2.0@hahn-schickard/stable"
+        "Technology_Adapter_Interface/[~0.1]@hahn-schickard/stable",
+        "Variant_Visitor/[~0.1]@hahn-schickard/stable",
+        "LwM2M_Server/[~0.5]@hahn-schickard/stable",
+        "HSCUL/[~0.2]@hahn-schickard/stable"
     ]
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False],
@@ -55,6 +54,7 @@ class PackageConan(ConanFile):
         self._cmake = CMake(self)
         self._cmake.verbose = True
         self._cmake.definitions['STATIC_CODE_ANALYSIS'] = False
+        self._cmake.definitions['RUN_TESTS'] = False
         self._cmake.definitions['USE_CONAN'] = True
         self._cmake.configure()
         return self._cmake

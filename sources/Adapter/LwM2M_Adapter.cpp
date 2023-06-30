@@ -6,23 +6,23 @@ using namespace LwM2M;
 
 namespace Technology_Adapter {
 LwM2M_TechnologyAdapter::LwM2M_TechnologyAdapter(const string& filepath)
-    : TechnologyAdapter("LwM2M Technology Adapter"),
+    : TechnologyAdapterInterface("LwM2M Technology Adapter"),
       server_(make_unique<Server>(filepath)),
-      event_handler_(make_unique<DeviceEventHandler>(
-          server_->getEventSource(), getLogger())) {}
+      event_handler_(
+          make_unique<DeviceEventHandler>(server_->getEventSource(), logger)) {}
 
 void LwM2M_TechnologyAdapter::interfaceSet() {
   event_handler_->setBuilderAndRegistryInterfaces(
-      getDeviceBuilder(), getModelRegistry());
+      getDeviceBuilder(), getDeviceRegistry());
 }
 
 void LwM2M_TechnologyAdapter::start() {
   server_->start();
-  TechnologyAdapter::start();
+  TechnologyAdapterInterface::start();
 }
 
 void LwM2M_TechnologyAdapter::stop() {
   server_->stop();
-  TechnologyAdapter::stop();
+  TechnologyAdapterInterface::stop();
 }
 } // namespace Technology_Adapter

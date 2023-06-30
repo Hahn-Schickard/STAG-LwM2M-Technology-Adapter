@@ -2,19 +2,14 @@
 #define __LWM2M_BUILDING_AND_REGISTRATION_FACADE_HPP
 
 #include "Information_Model/DeviceBuilderInterface.hpp"
-#include "Technology_Adapter_Interface/ModelRegistryInterface.hpp"
+#include "Technology_Adapter_Interface/TechnologyAdapterInterface.hpp"
 
-class LwM2M_RegistryEventHandler {
-public:
-  using DeviceBuilderPtr =
-      std::shared_ptr<Information_Model::DeviceBuilderInterface>;
-  using ModelRegistryPtr =
-      std::shared_ptr<Technology_Adapter::ModelRegistryInterface>;
-
+struct LwM2M_RegistryEventHandler {
   virtual ~LwM2M_RegistryEventHandler() = default;
 
   virtual void setBuilderAndRegistryInterfaces(
-      DeviceBuilderPtr builder, ModelRegistryPtr registry) = 0;
+      Information_Model::NonemptyDeviceBuilderInterfacePtr builder,
+      Technology_Adapter::NonemptyDeviceRegistryPtr registry) = 0;
 };
 
 #endif //__LWM2M_BUILDING_AND_REGISTRATION_FACADE_HPP

@@ -1,4 +1,23 @@
 # Changelog
+## [0.3.0] - 2023.06.30
+### Added
+ - `LwM2M_ExecuteRequestsMap` to handle `LwM2M::Execute` requests wrapping into `Information_Model::DeviceBuilderInterface::ExecutorResult` 
+ - `executeWrapper()` 
+ - `cancelWrapper()`
+ - `ExecutablePtr` case in `DeviceEventHandler::addSubelements()`
+
+### Changed
+ - Technology_Adapter_Interface dependency to fuzzy v0.8
+ - **TechnologyAdapter.hpp** usage into **TechnologyAdapterInterface.hpp**
+ - `LwM2M_TechnologyAdapter` to inherit `TechnologyAdapterInterface`
+ - `LwM2M_RegistryEventHandler::setBuilderAndRegistryInterfaces()` params to be nonempty
+ - `DeviceEventHandler::buildDevice()` to return `NonemptyDevicePtr`
+
+### Removed 
+ - direct Variant_Visitor in favor of using indirect one via  LwM2M_Server
+ - direct HSCUL in favor of using indirect one via  LwM2M_Server
+ - `addDeviceElement()` usage in **DeviceEventHandler.cpp** 
+
 ## [0.2.4] - 2022.11.17
 ### Changed
  - conan packaging recipe

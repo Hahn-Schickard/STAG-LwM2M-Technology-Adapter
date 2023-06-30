@@ -3,7 +3,7 @@
 #include "Information_Model/Metric.hpp"
 #include "Information_Model/WritableMetric.hpp"
 #include "Information_Model/mocks/DeviceMockBuilder.hpp"
-#include "Technology_Adapter_Interface/mocks/ModelRegistryInterface_MOCK.hpp"
+#include "Technology_Adapter_Interface/mocks/ModelRepositoryInterface_MOCK.hpp"
 
 #include "LwM2M_Adapter.hpp"
 
@@ -17,19 +17,20 @@ using namespace std;
 
 using ::testing::NiceMock;
 
-void print(const DevicePtr& device);
-void print(NonemptyDeviceElementPtr element, size_t offset);
-void print(NonemptyWritableMetricPtr element, size_t offset);
-void print(NonemptyMetricPtr element, size_t offset);
-void print(NonemptyDeviceElementGroupPtr elements, size_t offset);
+void print(const NonemptyDevicePtr& device);
+void print(const NonemptyDeviceElementPtr& element, size_t offset);
+void print(const NonemptyWritableMetricPtr& element, size_t offset);
+void print(const NonemptyMetricPtr& element, size_t offset);
+void print(const NonemptyFunctionPtr& element, size_t offset);
+void print(const NonemptyDeviceElementGroupPtr& elements, size_t offset);
 
 static constexpr size_t BASE_OFFSET = 160;
 static constexpr size_t ELEMENT_OFFSET = 3;
 
-bool registrationHandler(const DevicePtr& device) {
+bool registrationHandler(const NonemptyDevicePtr& device) {
   cout << "Registering new Device: " << device->getElementName() << endl;
   thread(
-      [](const DevicePtr& device) {
+      [](const NonemptyDevicePtr& device) {
         print(device);
         cout << string(BASE_OFFSET, '=') << endl;
       },
@@ -51,13 +52,11 @@ int main(int argc, const char* argv[]) {
 
     auto adapter = make_shared<Technology_Adapter::LwM2M_TechnologyAdapter>(
         "config/serverConfig.json");
-    adapter->setInterfaces(
-        make_shared<Information_Model::testing::DeviceMockBuilder>(),
-        make_shared<NiceMock<ModelRegistryMock>>(
-            make_shared<RegistrationHandler>(
-                bind(&registrationHandler, placeholders::_1)),
-            make_shared<DeregistrationHandler>(
-                bind(&deregistrationHandler, placeholders::_1))));
+    adapter->setInterfaces(NonemptyPointer::make_shared<
+                               Information_Model::testing::DeviceMockBuilder>(),
+        NonemptyPointer::make_shared<NiceMock<ModelRepositoryMock>>(
+            bind(&registrationHandler, placeholders::_1),
+            bind(&deregistrationHandler, placeholders::_1)));
     adapter->start();
 
     if (argc > 1) {
@@ -75,20 +74,20 @@ int main(int argc, const char* argv[]) {
   exit(EXIT_SUCCESS);
 }
 
-void print(NonemptyDeviceElementGroupPtr elements, size_t offset) {
+void print(const NonemptyDeviceElementGroupPtr& elements, size_t offset) {
   cout << string(offset, ' ') << "Group contains elements:" << endl;
-  for (auto element : elements->getSubelements()) {
+  for (const auto& element : elements->getSubelements()) {
     print(element, offset + ELEMENT_OFFSET);
   }
 }
 
-void print(NonemptyMetricPtr element, size_t offset) {
+void print(const NonemptyMetricPtr& element, size_t offset) {
   cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
        << " value: " << toString(element->getMetricValue()) << endl;
   cout << endl;
 }
 
-void print(NonemptyWritableMetricPtr element, size_t offset) {
+void print(const NonemptyWritableMetricPtr& element, size_t offset) {
   cout << string(offset, ' ') << "Reads " << toString(element->getDataType())
        << " value: " << toString(element->getMetricValue()) << endl;
   cout << string(offset, ' ') << "Writes " << toString(element->getDataType())
@@ -96,7 +95,12 @@ void print(NonemptyWritableMetricPtr element, size_t offset) {
   cout << endl;
 }
 
-void print(NonemptyDeviceElementPtr element, size_t offset) {
+void print(const NonemptyFunctionPtr& element, size_t offset) {
+  cout << string(offset, ' ') << "Executes " << toString(element->result_type)
+       << " (" << toString(element->parameters) << ")" << endl;
+}
+
+void print(const NonemptyDeviceElementPtr& element, size_t offset) {
   cout << string(offset, ' ') << "Element name: " << element->getElementName()
        << endl;
   cout << string(offset, ' ') << "Element id: " << element->getElementId()
@@ -105,16 +109,20 @@ void print(NonemptyDeviceElementPtr element, size_t offset) {
        << "Described as: " << element->getElementDescription() << endl;
 
   match(
-      element->specific_interface,
-      [offset](NonemptyDeviceElementGroupPtr interface) {
+      element->functionality,
+      [offset](const NonemptyDeviceElementGroupPtr& interface) {
         print(interface, offset);
       },
-      [offset](NonemptyMetricPtr interface) { print(interface, offset); },
       [offset](
-          NonemptyWritableMetricPtr interface) { print(interface, offset); });
+          const NonemptyMetricPtr& interface) { print(interface, offset); },
+      [offset](const NonemptyWritableMetricPtr& interface) {
+        print(interface, offset);
+      },
+      [offset](
+          const NonemptyFunctionPtr& interface) { print(interface, offset); });
 }
 
-void print(const DevicePtr& device) {
+void print(const NonemptyDevicePtr& device) {
   cout << "Device name: " << device->getElementName() << endl;
   cout << "Device id: " << device->getElementId() << endl;
   cout << "Described as: " << device->getElementDescription() << endl;

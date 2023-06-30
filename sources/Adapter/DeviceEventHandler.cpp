@@ -57,7 +57,7 @@ Information_Model::DataType toDataType(LwM2M::DataType data_type) {
     return Information_Model::DataType::STRING;
   }
   case LwM2M::DataType::NONE: {
-    [[fallthrough]];
+    return Information_Model::DataType::NONE;
   }
   default: {
     return Information_Model::DataType::UNKNOWN;
@@ -139,7 +139,6 @@ void DeviceEventHandler::addSubelements(
     auto descriptor = resource_variant_pair.second->getDescriptor();
     auto name = descriptor->name_;
     auto description = descriptor->description_;
-    auto element_type = toElementType(descriptor->operations_);
     auto data_type = toDataType(descriptor->data_type_);
     auto resource_instances =
         resource_variant_pair.second->getResourceInstances();
@@ -147,29 +146,31 @@ void DeviceEventHandler::addSubelements(
       match(
           resource_instance.second,
           [&](ReadablePtr instance) {
-            ReadFunctor read_cb = bind(&readWrapper, instance);
+            DeviceBuilderInterface::Reader read_cb =
+                bind(&readWrapper, instance);
             logger_->log(SeverityLevel::TRACE,
                 "Binding LwM2M Resource {} with Read access to a {} data "
                 "reader.",
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->data_type_));
-            builder_->addDeviceElement(instance_id, name, description,
-                element_type, data_type, read_cb, std::nullopt, std::nullopt);
+            builder_->addReadableMetric(
+                instance_id, name, description, data_type, read_cb);
           },
           [&](WritablePtr instance) {
-            WriteFunctor write_cb =
+            DeviceBuilderInterface::Writer write_cb =
                 std::bind(&writeWrapper, instance, placeholders::_1);
             logger_->log(SeverityLevel::TRACE,
                 "Binding LwM2M Resource {} with Write access to a {} data "
                 "writer.",
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->data_type_));
-            builder_->addDeviceElement(instance_id, name, description,
-                element_type, data_type, std::nullopt, write_cb, std::nullopt);
+            builder_->addWritableMetric(
+                instance_id, name, description, data_type, write_cb);
           },
           [&](ReadAndWritablePtr instance) {
-            ReadFunctor read_cb = std::bind(&readWrapper, instance);
-            WriteFunctor write_cb =
+            DeviceBuilderInterface::Reader read_cb =
+                std::bind(&readWrapper, instance);
+            DeviceBuilderInterface::Writer write_cb =
                 std::bind(&writeWrapper, instance, placeholders::_1);
             logger_->log(SeverityLevel::TRACE,
                 "Binding LwM2M Resource {} with Read ahd Write access to a {} "
@@ -181,7 +182,7 @@ void DeviceEventHandler::addSubelements(
           },
           [&](auto) {
             logger_->log(SeverityLevel::WARNING,
-                "Ignoring unsupported Resource {} with acces type {}",
+                "Ignoring unsupported Resource {} with access type {}",
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->operations_));
           });
@@ -219,8 +220,7 @@ void DeviceEventHandler::populateRootElementGroup(
   }
 }
 
-Information_Model::DevicePtr DeviceEventHandler::buildDevice(
-    LwM2M::DevicePtr device) {
+NonemptyDevicePtr DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
   if (builder_) {
     logger_->log(SeverityLevel::TRACE, "Building device base for {}:{}",
         device->getDeviceId(), device->getName());
@@ -228,9 +228,9 @@ Information_Model::DevicePtr DeviceEventHandler::buildDevice(
         device->getDeviceId(), device->getName(), string());
     populateRootElementGroup(device->getObjects());
 
-    return builder_->getResult();
+    return NonemptyDevicePtr(builder_->getResult());
   }
-  return Information_Model::DevicePtr();
+  throw runtime_error("Device builder is not set");
 }
 
 void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
@@ -240,11 +240,9 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
     if (builder_ && registry_) {
       if (event->device_.has_value()) {
         auto device = buildDevice(event->device_.value());
-        if (device) {
-          logger_->log(SeverityLevel::TRACE, "Registering device {}:{}",
-              device->getElementId(), device->getElementName());
-          registry_->registerDevice(device);
-        }
+        logger_->log(SeverityLevel::TRACE, "Registering device {}:{}",
+            device->getElementId(), device->getElementName());
+        registry_->registrate(device);
       } else {
         logger_->log(SeverityLevel::WARNING,
             "Received Device Updated event without Device value");
@@ -256,7 +254,7 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
     if (registry_) {
       logger_->log(
           SeverityLevel::TRACE, "Deregistering device {}", event->identifier_);
-      registry_->deregisterDevice(event->identifier_);
+      registry_->deregistrate(event->identifier_);
     }
     break;
   }
@@ -273,7 +271,8 @@ DeviceEventHandler::DeviceEventHandler(
     : EventListenerInterface(event_source), logger_(logger) {} // NOLINT
 
 void DeviceEventHandler::setBuilderAndRegistryInterfaces(
-    DeviceBuilderPtr builder, ModelRegistryPtr registry) {
-  builder_ = builder;
-  registry_ = registry;
+    Information_Model::NonemptyDeviceBuilderInterfacePtr builder,
+    Technology_Adapter::NonemptyDeviceRegistryPtr registry) {
+  builder_ = builder.base();
+  registry_ = registry.base();
 }

@@ -5,6 +5,7 @@
 #include "Variant_Visitor.hpp"
 
 #include <functional>
+#include <future>
 #include <regex>
 
 using namespace std;
@@ -133,6 +134,29 @@ void writeWrapper(
       [&](auto value) { resource->write(value); });
 }
 
+DeviceBuilderInterface::ExecutorResult executeWrapper(ExecutablePtr resource,
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
+    LwM2M_ExecuteRequestsMapPtr execute_requests,
+    const Function::Parameters& parameters) {
+  string execute_args =
+      std::accumulate(std::next(parameters.begin()), parameters.end(), string(),
+          [](std::string& result,
+              const pair<uintmax_t, Function::Parameter>& parameter) {
+            if (parameter.second.has_value()) {
+              return result + "," + toString(parameter.second.value());
+            } else {
+              return result;
+            }
+          });
+  auto execute_future = resource->execute(execute_args);
+  return execute_requests->call(move(execute_future));
+}
+
+void cancelWrapper( // NOLINTNEXTLINE(performance-unnecessary-value-param)
+    LwM2M_ExecuteRequestsMapPtr execute_requests, uintmax_t call_id) {
+  execute_requests->cancel(call_id);
+}
+
 void DeviceEventHandler::addSubelements(
     string instance_id, const LwM2M::Resources& resources) {
   for (const auto& resource_variant_pair : resources) {
@@ -177,8 +201,27 @@ void DeviceEventHandler::addSubelements(
                 "data reader and writer.",
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->data_type_));
-            builder_->addDeviceElement(instance_id, name, description,
-                element_type, data_type, read_cb, write_cb, std::nullopt);
+            builder_->addWritableMetric(
+                instance_id, name, description, data_type, write_cb, read_cb);
+          },
+          [&](ExecutablePtr instance) {
+            DeviceBuilderInterface::Executor execute_cb = std::bind(
+                &executeWrapper, instance, execute_requests_, placeholders::_1);
+            DeviceBuilderInterface::Canceler cancel_cb =
+                std::bind(&cancelWrapper, execute_requests_, placeholders::_1);
+            logger_->log(SeverityLevel::TRACE,
+                "Binding LwM2M Resource {} with Execute access to a {} "
+                "executor and canceler.",
+                resource_instance.first.toString(),
+                LwM2M::toString(descriptor->data_type_));
+            builder_->addFunction(instance_id, name, description,
+                Information_Model::DataType::BOOLEAN, // LwM2M supports only
+                                                      // boolean returns
+                execute_cb, cancel_cb,
+                Function::ParameterTypes{
+                    {0, // all parameters are encoded in a single string
+                        Function::ParameterType{
+                            Information_Model::DataType::STRING, true}}});
           },
           [&](auto) {
             logger_->log(SeverityLevel::WARNING,

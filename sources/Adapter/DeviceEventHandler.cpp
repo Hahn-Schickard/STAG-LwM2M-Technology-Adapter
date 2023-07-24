@@ -169,7 +169,7 @@ void DeviceEventHandler::addSubelements(
     for (const auto& resource_instance : resource_instances) {
       match(
           resource_instance.second,
-          [&](ReadablePtr instance) {
+          [&](const ReadablePtr& instance) {
             DeviceBuilderInterface::Reader read_cb =
                 bind(&readWrapper, instance);
             logger_->log(SeverityLevel::TRACE,
@@ -180,7 +180,7 @@ void DeviceEventHandler::addSubelements(
             builder_->addReadableMetric(
                 instance_id, name, description, data_type, read_cb);
           },
-          [&](WritablePtr instance) {
+          [&](const WritablePtr& instance) {
             DeviceBuilderInterface::Writer write_cb =
                 std::bind(&writeWrapper, instance, placeholders::_1);
             logger_->log(SeverityLevel::TRACE,
@@ -191,7 +191,7 @@ void DeviceEventHandler::addSubelements(
             builder_->addWritableMetric(
                 instance_id, name, description, data_type, write_cb);
           },
-          [&](ReadAndWritablePtr instance) {
+          [&](const ReadAndWritablePtr& instance) {
             DeviceBuilderInterface::Reader read_cb =
                 std::bind(&readWrapper, instance);
             DeviceBuilderInterface::Writer write_cb =
@@ -204,7 +204,7 @@ void DeviceEventHandler::addSubelements(
             builder_->addWritableMetric(
                 instance_id, name, description, data_type, write_cb, read_cb);
           },
-          [&](ExecutablePtr instance) {
+          [&](const ExecutablePtr& instance) {
             DeviceBuilderInterface::Executor execute_cb = std::bind(
                 &executeWrapper, instance, execute_requests_, placeholders::_1);
             DeviceBuilderInterface::Canceler cancel_cb =

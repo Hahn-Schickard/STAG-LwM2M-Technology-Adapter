@@ -282,6 +282,7 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
   case RegistryEventType::UPDATED: {
     if (builder_ && registry_) {
       if (event->device_.has_value()) {
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
         auto device = buildDevice(event->device_.value());
         logger_->log(SeverityLevel::TRACE, "Registering device {}:{}",
             device->getElementId(), device->getElementName());

@@ -24,7 +24,7 @@ NORMATIVE INFORMATION
 CHANGE HISTORY
 
 08022017 Status changed to Approved by TP, TP Ref # OMA-TP-2017-0009-INP_LightweightM2M-V1_0_ERP_for_Final_Approval
-	
+
 LEGAL DISCLAIMER
 
   Copyright 2017 Open Mobile Alliance All rights reserved.
@@ -170,7 +170,7 @@ These LwM2M Object Resources MUST only be changed by a LwM2M Bootstrap-Server or
 				<Type>Opaque</Type>
 				<RangeEnumeration>16-32-48 bytes</RangeEnumeration>
 				<Units></Units>
-				<Description><![CDATA[Stores the values of the key(s) for the SMS binding. 
+				<Description><![CDATA[Stores the values of the key(s) for the SMS binding.
 This resource MUST only be changed by a bootstrap-server and MUST NOT be readable by any server.]]></Description>
 			</Item>
 			<Item ID="9">
@@ -181,7 +181,7 @@ This resource MUST only be changed by a bootstrap-server and MUST NOT be readabl
 				<Type>String</Type>
 				<RangeEnumeration></RangeEnumeration>
 				<Units></Units>
-				<Description><![CDATA[MSISDN used by the LwM2M Client to send messages to the LwM2M Server via the SMS binding. 
+				<Description><![CDATA[MSISDN used by the LwM2M Client to send messages to the LwM2M Server via the SMS binding.
 The LwM2M Client SHALL silently ignore any SMS originated from unknown MSISDN]]></Description>
 			</Item>
 			<Item ID="10">

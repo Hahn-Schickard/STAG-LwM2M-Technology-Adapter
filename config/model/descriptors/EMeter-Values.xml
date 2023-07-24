@@ -44,7 +44,7 @@
 				<RangeEnumeration/>
 				<Units>Defined by “Units” resource.</Units>
 				<Description>P2 Power</Description>
-			</Item>	
+			</Item>
 			<Item ID="33160">
 				<Name>Voltage-P0</Name>
 				<Operations>R</Operations>
@@ -80,7 +80,7 @@
 				<RangeEnumeration/>
 				<Units>Defined by “Units” resource.</Units>
 				<Description>P2 Voltage</Description>
-			</Item>	
+			</Item>
 			<Item ID="33170">
 				<Name>Current-P0</Name>
 				<Operations>R</Operations>
@@ -116,10 +116,10 @@
 				<RangeEnumeration/>
 				<Units>Defined by “Units” resource.</Units>
 				<Description>P2 Current</Description>
-			</Item>			
+			</Item>
 		</Resources>
 		<Description2></Description2>
-	</Object>	
+	</Object>
 </LWM2M>
 
 

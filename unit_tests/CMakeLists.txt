@@ -13,7 +13,7 @@ target_sources(${THIS} PRIVATE
 )
 
 target_link_libraries(${THIS} PUBLIC
-                              GTest::GTest
+                              GTest::gtest
 )
 
 add_test(

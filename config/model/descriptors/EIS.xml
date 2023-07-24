@@ -8,7 +8,7 @@
 		<MultipleInstances>Multiple</MultipleInstances>
 		<Mandatory>Optional</Mandatory>
 		<Dynamic>Static</Dynamic>
-		<Resources>			
+		<Resources>
 			<Item ID="5700">
 				<Name>Sensor Value</Name>
 				<Operations>R</Operations>
@@ -92,7 +92,7 @@
 		<MultipleInstances>Multiple</MultipleInstances>
 		<Mandatory>Optional</Mandatory>
 		<Dynamic>Static</Dynamic>
-		<Resources>			
+		<Resources>
 			<Item ID="5700">
 				<Name>Sensor Value</Name>
 				<Operations>R</Operations>

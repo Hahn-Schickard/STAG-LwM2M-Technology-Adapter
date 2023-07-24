@@ -44,7 +44,7 @@
 				<RangeEnumeration/>
 				<Units>Defined by “Units” resource.</Units>
 				<Description>Last or Current Measured Value from Humidity Sensor</Description>
-			</Item>	
+			</Item>
 			<Item ID="3315">
 				<Name>Barometer Value</Name>
 				<Operations>R</Operations>
@@ -56,7 +56,7 @@
 				<RangeEnumeration/>
 				<Units>Defined by “Units” resource.</Units>
 				<Description>Last or Current Measured Value from Barometer</Description>
-			</Item>			
+			</Item>
 			<Item ID="3601">
 				<Name>FlowX Value</Name>
 				<Operations>R</Operations>
@@ -83,7 +83,7 @@
 			</Item>
 		</Resources>
 		<Description2></Description2>
-	</Object>	
+	</Object>
 </LWM2M>
 
 

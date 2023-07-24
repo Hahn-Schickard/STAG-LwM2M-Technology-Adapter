@@ -62,7 +62,7 @@
                 <Name>Min Range Value</Name>
                 <Operations>R</Operations>
                 <MultipleInstances>Single</MultipleInstances>
-		        <Dynamic>Static</Dynamic> 
+		        <Dynamic>Static</Dynamic>
 		        <Historization>True</Historization>
                	<Mandatory>Optional</Mandatory>
                 <Type>Float</Type>

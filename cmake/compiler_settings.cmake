@@ -15,8 +15,9 @@ add_definitions(
     -Woverloaded-virtual
     -Wwrite-strings
     -Wall
-    -Wl,--enable-new-dtags
 )
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
 
 if (NOT WIN32 AND COVERAGE_TRACKING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage ")

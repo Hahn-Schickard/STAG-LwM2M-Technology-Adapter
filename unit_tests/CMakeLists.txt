@@ -4,15 +4,27 @@ set(THIS Unit_Tests_Runner)
 
 file(GLOB TestSuite "${CMAKE_CURRENT_LIST_DIR}/TestSuite/*")
 
+#@+ ====================== User TEST_SUITES configuration ==========================
+list(APPEND TEST_SUITES
+            ${TestSuite}
+)
+#@- ========================= END OF USER CONFIGURATION ============================
+
 find_package(GTest REQUIRED)
 
 add_executable(${THIS})
 target_sources(${THIS} PRIVATE
                        "testRunner.cpp"
-                       ${TestSuite}
+                       ${TEST_SUITES}
 )
 
+#@+ ==================== User TEST_DEPENDCIES configuration =======================
+list(APPEND TEST_DEPENDCIES
+)
+#@- ========================= END OF USER CONFIGURATION ===========================
+
 target_link_libraries(${THIS} PUBLIC
+                              ${TEST_DEPENDCIES}
                               GTest::gtest
 )
 

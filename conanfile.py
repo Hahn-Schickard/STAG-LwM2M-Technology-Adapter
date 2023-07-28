@@ -58,6 +58,11 @@ class PackageConan(ConanFile):
         self.test_requires("gtest/[~1.11]")
         # @- END USER REQUIREMENTS
 
+    def configure(self):
+        # @+ START USER REQUIREMENTS OPTION CONFIGURATION
+        pass
+        # @- END USER REQUIREMENTS OPTION CONFIGURATION
+
     def layout(self):
         cmake_layout(self)
 
@@ -69,8 +74,8 @@ class PackageConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables['STATIC_CODE_ANALYSIS'] = False
         tc.variables['RUN_TESTS'] = False
-        tc.variables['CMAKE_CONAN'] = False
         tc.variables['COVERAGE_TRACKING'] = False
+        tc.variables['CMAKE_CONAN'] = False
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
 
@@ -90,8 +95,8 @@ class PackageConan(ConanFile):
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.set_property("cmake_find_mode", "both")
         # @+ START USER DEFINES
-        self.cpp_info.set_property(
-            "cmake_file_name", "LwM2M_Technology_Adapter")
-        self.cpp_info.set_property(
-            "cmake_target_name", "LwM2M_Technology_Adapter::LwM2M_Technology_Adapter")
+        project_name = 'LwM2M_Technology_Adapter'
         # @- END USER DEFINES
+        self.cpp_info.set_property("cmake_file_name", project_name)
+        cmake_target_name = project_name + "::" + project_name
+        self.cpp_info.set_property("cmake_target_name", cmake_target_name)

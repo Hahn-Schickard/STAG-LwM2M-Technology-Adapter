@@ -90,7 +90,12 @@ string toString(OperationsType type) {
 
 Information_Model::DataVariant readWrapper(ReadablePtr resource) {
   auto response = resource->read();
-  auto value = response.get();
+  auto response_future = response.asyncGet();
+  if (auto status = response_future.wait_for(2s);
+      status != future_status::ready) {
+    response.cancel();
+  }
+  auto value = response_future.get();
   Information_Model::DataVariant result;
   match(
       value,

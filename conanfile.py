@@ -52,7 +52,8 @@ class PackageConan(ConanFile):
     def requirements(self):
         # @+ START USER REQUIREMENTS
         self.requires(
-            "technology_adapter_interface/[~0.2]@hahn-schickard/stable", headers=True,  libs=True, transitive_headers=True, transitive_libs=True)
+            "technology_adapter_interface/[~0.2]@hahn-schickard/stable",
+            headers=True,  libs=True, transitive_headers=True, transitive_libs=True)
         self.requires(
             "lwm2m_server/[~0.5]@hahn-schickard/stable", headers=True,  libs=True, transitive_headers=True, transitive_libs=True)
         self.test_requires("gtest/[~1.11]")

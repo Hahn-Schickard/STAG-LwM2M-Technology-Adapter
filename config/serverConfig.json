@@ -1,9 +1,9 @@
 {
-    "model_descriptors": "config/model/descriptors.xml",
+    "model_descriptors": "model/descriptors.xml",
     "bindings": [
         {
             "type": "CoAP",
-            "location": "config/socketConfig.json"
+            "location": "socketConfig.json"
         }
     ]
 }

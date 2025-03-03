@@ -61,7 +61,7 @@ struct DeviceEventHandler
     : public Event_Model::EventListenerInterface<LwM2M::RegistryEvent>,
       public LwM2M_RegistryEventHandler {
   DeviceEventHandler(
-      LwM2M::EventSourcePtr event_source, HaSLI::LoggerPtr logger);
+      LwM2M::EventSourcePtr event_source, HaSLL::LoggerPtr logger);
 
   void setBuilderAndRegistryInterfaces(
       Information_Model::NonemptyDeviceBuilderInterfacePtr builder,
@@ -77,5 +77,5 @@ private:
   LwM2M_ExecuteRequestsMapPtr execute_requests_;
   Information_Model::DeviceBuilderInterfacePtr builder_;
   Technology_Adapter::DeviceRegistryPtr registry_;
-  HaSLI::LoggerPtr logger_;
+  HaSLL::LoggerPtr logger_;
 };

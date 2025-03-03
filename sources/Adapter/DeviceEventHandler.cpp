@@ -12,7 +12,7 @@ using namespace std;
 using namespace LwM2M;
 using namespace Information_Model;
 using namespace Technology_Adapter;
-using namespace HaSLI;
+using namespace HaSLL;
 
 static constexpr uint8_t SECURITY_OBJECT = 0;
 static constexpr uint8_t SERVER_OBJECT = 1;
@@ -177,7 +177,7 @@ void DeviceEventHandler::addSubelements(
           [&](const ReadablePtr& instance) {
             DeviceBuilderInterface::Reader read_cb =
                 bind(&readWrapper, instance);
-            logger_->log(SeverityLevel::TRACE,
+            logger_->trace(
                 "Binding LwM2M Resource {} with Read access to a {} data "
                 "reader.",
                 resource_instance.first.toString(),
@@ -188,7 +188,7 @@ void DeviceEventHandler::addSubelements(
           [&](const WritablePtr& instance) {
             DeviceBuilderInterface::Writer write_cb =
                 std::bind(&writeWrapper, instance, placeholders::_1);
-            logger_->log(SeverityLevel::TRACE,
+            logger_->trace(
                 "Binding LwM2M Resource {} with Write access to a {} data "
                 "writer.",
                 resource_instance.first.toString(),
@@ -201,7 +201,7 @@ void DeviceEventHandler::addSubelements(
                 std::bind(&readWrapper, instance);
             DeviceBuilderInterface::Writer write_cb =
                 std::bind(&writeWrapper, instance, placeholders::_1);
-            logger_->log(SeverityLevel::TRACE,
+            logger_->trace(
                 "Binding LwM2M Resource {} with Read ahd Write access to a {} "
                 "data reader and writer.",
                 resource_instance.first.toString(),
@@ -214,7 +214,7 @@ void DeviceEventHandler::addSubelements(
                 &executeWrapper, instance, execute_requests_, placeholders::_1);
             DeviceBuilderInterface::Canceler cancel_cb =
                 std::bind(&cancelWrapper, execute_requests_, placeholders::_1);
-            logger_->log(SeverityLevel::TRACE,
+            logger_->trace(
                 "Binding LwM2M Resource {} with Execute access to a {} "
                 "executor and canceler.",
                 resource_instance.first.toString(),
@@ -229,7 +229,7 @@ void DeviceEventHandler::addSubelements(
                             Information_Model::DataType::STRING, true}}});
           },
           [&](auto) {
-            logger_->log(SeverityLevel::WARNING,
+            logger_->warning(
                 "Ignoring unsupported Resource {} with access type {}",
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->operations_));
@@ -245,8 +245,7 @@ void DeviceEventHandler::populateRootElementGroup(
         (object_pair.first != SERVER_OBJECT)) {
       auto instances = object_pair.second->getObjectInstances();
       for (auto instance_pair : instances) {
-        logger_->log(SeverityLevel::TRACE,
-            "Creating a Device Element group for Object {}:{}",
+        logger_->trace("Creating a Device Element group for Object {}:{}",
             object_pair.second->getDescriptor()->name_, instance_pair.first);
 
         auto instance_name = object_pair.second->getDescriptor()->name_ + " " +
@@ -256,8 +255,7 @@ void DeviceEventHandler::populateRootElementGroup(
         addSubelements(instance_id, instance_pair.second->getResources());
       }
     } else {
-      logger_->log(SeverityLevel::TRACE,
-          "Excluding {} Object {} from Information Model",
+      logger_->trace("Excluding {} Object {} from Information Model",
           (object_pair.first == SERVER_OBJECT
                   ? "Server"
                   : (object_pair.first == SECURITY_OBJECT
@@ -270,8 +268,8 @@ void DeviceEventHandler::populateRootElementGroup(
 
 NonemptyDevicePtr DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
   if (builder_) {
-    logger_->log(SeverityLevel::TRACE, "Building device base for {}:{}",
-        device->getDeviceId(), device->getName());
+    logger_->trace("Building device base for {}:{}", device->getDeviceId(),
+        device->getName());
     builder_->buildDeviceBase(
         device->getDeviceId(), device->getName(), string());
     populateRootElementGroup(device->getObjects());
@@ -289,20 +287,18 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
       if (event->device_.has_value()) {
         // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
         auto device = buildDevice(event->device_.value());
-        logger_->log(SeverityLevel::TRACE, "Registering device {}:{}",
-            device->getElementId(), device->getElementName());
+        logger_->trace("Registering device {}:{}", device->getElementId(),
+            device->getElementName());
         registry_->registrate(device);
       } else {
-        logger_->log(SeverityLevel::WARNING,
-            "Received Device Updated event without Device value");
+        logger_->warning("Received Device Updated event without Device value");
       }
     }
     break;
   }
   case RegistryEventType::DEREGISTERED: {
     if (registry_) {
-      logger_->log(
-          SeverityLevel::TRACE, "Deregistering device {}", event->identifier_);
+      logger_->trace("Deregistering device {}", event->identifier_);
       registry_->deregistrate(event->identifier_);
     }
     break;

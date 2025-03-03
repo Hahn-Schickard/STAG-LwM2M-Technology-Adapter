@@ -52,10 +52,10 @@ class PackageConan(ConanFile):
     def requirements(self):
         # @+ START USER REQUIREMENTS
         self.requires(
-            "technology_adapter_interface/[~0.2]@hahn-schickard/stable",
+            "technology_adapter_interface/[~0.4]@hahn-schickard/stable",
             headers=True,  libs=True, transitive_headers=True, transitive_libs=True)
         self.requires(
-            "lwm2m_server/[~0.5]@hahn-schickard/stable", headers=True, transitive_headers=True)
+            "lwm2m_server/[~0.6]@hahn-schickard/stable", headers=True, transitive_headers=True)
         # @- END USER REQUIREMENTS
 
     def build_requirements(self):

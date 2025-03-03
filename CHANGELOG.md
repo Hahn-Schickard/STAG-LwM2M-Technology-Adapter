@@ -1,4 +1,18 @@
 # Changelog
+## [0.4.0] - 2025.03.03
+### Added
+ - Windows 10 support
+ - `GTest` v1.11 dependency as **build_requires**
+
+### Changed
+ - `Technology_Adapter_Interface` dependency to v0.4
+ - `LwM2M_Server` dependency to v0.6
+ - `HaSLL` dependency usage
+ - `logger_->log(SeverityLevel::[LEVEL],...)` into `logger_->[LEVEL](...)` 
+
+### Removed
+ - `config/` path prefix from `config/serverConfig.json` fields `model_descriptors` and `location` 
+
 ## [0.3.2] - 2023.07.28
 ### Added
  - STAG logo to documentation 

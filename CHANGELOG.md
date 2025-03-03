@@ -9,6 +9,7 @@
  - `LwM2M_Server` dependency to v0.6
  - `HaSLL` dependency usage
  - `logger_->log(SeverityLevel::[LEVEL],...)` into `logger_->[LEVEL](...)` 
+ - `LwM2M_TechnologyAdapter::start()` to first call `TechnologyAdapterInterface::start()`
 
 ### Removed
  - `config/` path prefix from `config/serverConfig.json` fields `model_descriptors` and `location` 

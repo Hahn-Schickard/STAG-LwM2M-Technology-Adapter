@@ -17,8 +17,8 @@ void LwM2M_TechnologyAdapter::interfaceSet() {
 }
 
 void LwM2M_TechnologyAdapter::start() {
-  server_->start();
   TechnologyAdapterInterface::start();
+  server_->start();
 }
 
 void LwM2M_TechnologyAdapter::stop() {

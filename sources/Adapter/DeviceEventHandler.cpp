@@ -19,68 +19,68 @@ static constexpr uint8_t SERVER_OBJECT = 1;
 
 ElementType toElementType(OperationsType operations) {
   switch (operations) {
-  case OperationsType::READ: {
-    return ElementType::READABLE;
+  case OperationsType::Read: {
+    return ElementType::Readable;
   }
-  case OperationsType::EXECUTE: {
-    return ElementType::FUNCTION;
+  case OperationsType::Execute: {
+    return ElementType::Executable;
   }
   default:
-    return ElementType::WRITABLE;
+    return ElementType::Writable;
   }
 }
 
 Information_Model::DataType toDataType(LwM2M::DataType data_type) {
   switch (data_type) {
-  case LwM2M::DataType::BOOLEAN: {
-    return Information_Model::DataType::BOOLEAN;
+  case LwM2M::DataType::Boolean: {
+    return Information_Model::DataType::Boolean;
   }
-  case LwM2M::DataType::SIGNED_INTEGER: {
-    return Information_Model::DataType::INTEGER;
+  case LwM2M::DataType::Signed_Integer: {
+    return Information_Model::DataType::Integer;
   }
-  case LwM2M::DataType::UNSIGNED_INTEGER: {
-    return Information_Model::DataType::UNSIGNED_INTEGER;
+  case LwM2M::DataType::Unsigned_Integer: {
+    return Information_Model::DataType::Unsigned_Integer;
   }
-  case LwM2M::DataType::FLOAT: {
-    return Information_Model::DataType::DOUBLE;
+  case LwM2M::DataType::Float: {
+    return Information_Model::DataType::Double;
   }
-  case LwM2M::DataType::STRING: {
-    return Information_Model::DataType::STRING;
+  case LwM2M::DataType::String: {
+    return Information_Model::DataType::String;
   }
-  case LwM2M::DataType::OPAQUE: {
-    return Information_Model::DataType::OPAQUE;
+  case LwM2M::DataType::Opaque: {
+    return Information_Model::DataType::Opaque;
   }
-  case LwM2M::DataType::TIME: {
-    return Information_Model::DataType::TIME;
+  case LwM2M::DataType::Time: {
+    return Information_Model::DataType::Time;
   }
-  case LwM2M::DataType::OBJECT_LINK: {
+  case LwM2M::DataType::Object_Link: {
     // TODO: deicide how to handle linking to other nodes
-    return Information_Model::DataType::STRING;
+    return Information_Model::DataType::String;
   }
-  case LwM2M::DataType::NONE: {
-    return Information_Model::DataType::NONE;
+  case LwM2M::DataType::None: {
+    return Information_Model::DataType::None;
   }
   default: {
-    return Information_Model::DataType::UNKNOWN;
+    return Information_Model::DataType::Unknown;
   }
   }
 }
 
 string toString(OperationsType type) {
   switch (type) {
-  case OperationsType::READ: {
+  case OperationsType::Read: {
     return "Read";
   }
-  case OperationsType::WRITE: {
+  case OperationsType::Write: {
     return "Write";
   }
-  case OperationsType::READ_AND_WRITE: {
+  case OperationsType::Read_And_Write: {
     return "Read and Write";
   }
-  case OperationsType::EXECUTE: {
+  case OperationsType::Execute: {
     return "Execute";
   }
-  case OperationsType::NO_OPERATION: {
+  case OperationsType::No_Operation: {
   }
   default: {
     return "Null";
@@ -220,13 +220,13 @@ void DeviceEventHandler::addSubelements(
                 resource_instance.first.toString(),
                 LwM2M::toString(descriptor->data_type_));
             builder_->addFunction(instance_id, name, description,
-                Information_Model::DataType::BOOLEAN, // LwM2M supports only
+                Information_Model::DataType::Boolean, // LwM2M supports only
                                                       // boolean returns
                 execute_cb, cancel_cb,
                 Function::ParameterTypes{
                     {0, // all parameters are encoded in a single string
                         Function::ParameterType{
-                            Information_Model::DataType::STRING, true}}});
+                            Information_Model::DataType::String, true}}});
           },
           [&](auto) {
             logger_->warning(
@@ -281,8 +281,8 @@ NonemptyDevicePtr DeviceEventHandler::buildDevice(LwM2M::DevicePtr device) {
 
 void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
   switch (event->type_) {
-  case RegistryEventType::REGISTERED:
-  case RegistryEventType::UPDATED: {
+  case RegistryEventType::Registered:
+  case RegistryEventType::Updated: {
     if (builder_ && registry_) {
       if (event->device_.has_value()) {
         // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
@@ -296,7 +296,7 @@ void DeviceEventHandler::handleEvent(shared_ptr<RegistryEvent> event) {
     }
     break;
   }
-  case RegistryEventType::DEREGISTERED: {
+  case RegistryEventType::Deregistered: {
     if (registry_) {
       logger_->trace("Deregistering device {}", event->identifier_);
       registry_->deregistrate(event->identifier_);

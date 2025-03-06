@@ -1,8 +1,8 @@
 # Changelog
-## [0.4.0] - 2025.03.03
+## [0.4.0] - 2025.03.06
 ### Added
  - Windows 10 support
- - `GTest` v1.11 dependency as **build_requires**
+ - `GTest` v1.116 dependency as **build_requires**
 
 ### Changed
  - `Technology_Adapter_Interface` dependency to v0.4
@@ -10,6 +10,7 @@
  - `HaSLL` dependency usage
  - `logger_->log(SeverityLevel::[LEVEL],...)` into `logger_->[LEVEL](...)` 
  - `LwM2M_TechnologyAdapter::start()` to first call `TechnologyAdapterInterface::start()`
+ - `Information_Model::ElementType`, `Information_Model::DataType`, `LwM2M::OperationsType` and `LwM2M::RegistryEventType` enums to Camel_Case
 
 ### Removed
  - `config/` path prefix from `config/serverConfig.json` fields `model_descriptors` and `location` 

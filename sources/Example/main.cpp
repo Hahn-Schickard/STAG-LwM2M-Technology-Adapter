@@ -38,13 +38,13 @@ int main(int argc, const char* argv[]) {
       adapter->start();
 
       if (argc > 1) {
-        int sleep_period = atoi(argv[1]); // NOLINT
-        this_thread::sleep_for(chrono::seconds(sleep_period));
-        adapter->stop();
-      } else {
-        for (;;) {
+        while (tolower(cin.get()) != 'q') {
+          this_thread::sleep_for(1s);
         }
+      } else {
+        this_thread::sleep_for(2s);
       }
+      adapter->stop();
     } catch (const exception& ex) {
       cerr << "An exception occurred during program execution. Exception: "
            << ex.what() << endl;

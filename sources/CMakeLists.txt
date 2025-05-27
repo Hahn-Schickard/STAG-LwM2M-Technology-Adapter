@@ -1,2 +1,2 @@
 add_subdirectory(Adapter)
-add_subdirectory(Runner)
+add_subdirectory(Example)
